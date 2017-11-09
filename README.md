@@ -8,22 +8,38 @@ detailed instructions.
 
 [ae-docs]: https://cloud.google.com/appengine/docs/java/
 
+#Installation
+## Dependencies
 
-* [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-* [Maven](https://maven.apache.org/download.cgi) (at least 3.5)
-* [Google Cloud SDK](https://cloud.google.com/sdk/) (aka gcloud)
+* openjdk-8-jre
+* maven
+* [Google Cloud SDK](https://cloud.google.com/sdk/) (*optional* : will be installed automatically by maven during execution)
+
+```bash
+sudo apt-get install maven openjdk-8-jdk
+```
 
 ## Setup
 
-    gcloud init
-    gcloud auth application-default login
+```bash
+git clone https://github.com/kiralex/CardExchange.git
+cd  CardExchange
+```
 
-## Maven
-### Running locally
+Then, put your api key of pixabay in a new file at configuration/.env
+For example : 
+```
+PIXABAY_API_KEY=012345678909876543210
+```
+
+It is needed for creating cards
+
+## Maven commands
+### Running devserver locally
 
     mvn appengine:devserver
 
-### Deploying
+### Deploying (you need to have admin rights in the Google App Engine project to deploy)
 
     mvn appengine:update
 
