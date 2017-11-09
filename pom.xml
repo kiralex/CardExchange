@@ -94,12 +94,12 @@
       <artifactId>appengine-gcs-client</artifactId>
       <version>0.7</version>
     </dependency>
-      <!-- https://mvnrepository.com/artifact/org.json/json -->
-      <dependency>
-          <groupId>org.json</groupId>
-          <artifactId>json</artifactId>
-          <version>20171018</version>
-      </dependency>
+    <!-- https://mvnrepository.com/artifact/org.json/json -->
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20171018</version>
+    </dependency>
 
 
 

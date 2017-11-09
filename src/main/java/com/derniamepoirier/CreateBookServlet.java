@@ -1,3 +1,5 @@
+package com.derniamepoirier;
+
 import com.google.appengine.api.datastore.*;
 
 import javax.servlet.ServletException;
