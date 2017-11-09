@@ -17,7 +17,8 @@
   </properties>
 
   <prerequisites>
-    <maven>3.5</maven>
+    <maven>3.3
+    </maven>
   </prerequisites>
 
   <dependencies>
@@ -93,6 +94,13 @@
       <artifactId>appengine-gcs-client</artifactId>
       <version>0.7</version>
     </dependency>
+      <!-- https://mvnrepository.com/artifact/org.json/json -->
+      <dependency>
+          <groupId>org.json</groupId>
+          <artifactId>json</artifactId>
+          <version>20171018</version>
+      </dependency>
+
 
 
   </dependencies>
@@ -206,7 +214,7 @@
             <configuration>
               <rules>
                 <requireMavenVersion>
-                  <version>3.5</version>
+                  <version>3.3</version>
                 </requireMavenVersion>
                 <requirePluginVersions>
                    <message>Best Practice is to always define plugin versions!</message>
