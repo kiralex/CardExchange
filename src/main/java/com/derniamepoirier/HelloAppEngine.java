@@ -1,5 +1,9 @@
 package com.derniamepoirier;
 
+import com.derniamepoirier.Pixabay.PixabayApiKeyMissingException;
+import com.derniamepoirier.Pixabay.PixabayFetcher;
+import com.derniamepoirier.Pixabay.PixabayIncorrectParameterException;
+import com.derniamepoirier.Pixabay.PixabayResponseCodeException;
 import com.google.appengine.api.images.Image;
 import com.google.appengine.api.images.ImagesServiceFactory;
 import com.google.appengine.api.utils.SystemProperty;
@@ -19,10 +23,12 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 
 @WebServlet(name = "HelloAppEngine", value = "/hello")
 public class HelloAppEngine extends HttpServlet {
+  private static final Logger log = Logger.getLogger(HelloAppEngine.class.getName());
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -65,6 +71,17 @@ public class HelloAppEngine extends HttpServlet {
     response.getWriter().println("En theorie je upload...");
 
     ByteBuffer buff =  ByteBuffer.wrap(image.getImageData());
+
+    PixabayFetcher.PixabayAPIOptions options[] = new PixabayFetcher.PixabayAPIOptions[]{PixabayFetcher.ImageType.ILLUSTRATION};
+    try {
+      PixabayFetcher.fetch(options);
+    } catch (PixabayIncorrectParameterException e) {
+      e.printStackTrace();
+    } catch (PixabayApiKeyMissingException e) {
+      e.printStackTrace();
+    } catch (PixabayResponseCodeException e) {
+      e.printStackTrace();
+    }
 
     service.createOrReplace(name, opt, buff);
 
