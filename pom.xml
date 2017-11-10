@@ -118,8 +118,20 @@
       <version>3.0.0-M1</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.github.everit-org.json-schema</groupId>
+      <artifactId>org.everit.json.schema</artifactId>
+      <version>1.6.0</version>
+    </dependency>
 
   </dependencies>
+
+  <repositories>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
+  </repositories>
 
   <build>
     <!-- for hot reload of the web application-->
