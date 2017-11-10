@@ -82,6 +82,8 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- User defined -->
+
     <!-- https://mvnrepository.com/artifact/com.harium/dotenv -->
     <dependency>
       <groupId>com.harium</groupId>
@@ -109,9 +111,12 @@
       <version>4.5.3</version>
     </dependency>
 
-
-
-
+    <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-javadoc-plugin -->
+    <dependency>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-javadoc-plugin</artifactId>
+      <version>3.0.0-M1</version>
+    </dependency>
 
 
   </dependencies>
@@ -238,6 +243,18 @@
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.0.0-M1</version>
+        <configuration>
+          <noqualifier>all</noqualifier>
+          <reportOutputDirectory>.</reportOutputDirectory>
+          <destDir>javadoc</destDir>
+        </configuration>
+      </plugin>
+
     </plugins>
   </build>
 </project>
