@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "id" : "PixabayImage.json",
+  "description": "Structure of a valid Pixabay Image",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description" : "Image ID"
+    },
+    "tags": {
+      "type": "string",
+      "description" : "Image tags"
+    },
+    "pageURL": {
+      "type": "string",
+      "format": "uri",
+      "description" : "Image page URL"
+    },
+    "webformatURL": {
+      "type": "string",
+      "format": "uri",
+      "description" : "Image download direct link"
+    },
+    "user": {
+      "type": "string",
+      "description" : "Image author name"
+    }
+  },
+
+  "required": []
+}

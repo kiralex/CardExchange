@@ -271,6 +271,7 @@ public class PixabayFetcher {
                     .addParameter("key", PIXABAY_API_KEY);
 
             URL url = uriBuilder.build().toURL();
+            log.info("API request : " + url.toString());
             urlString = url.toString();
 
 

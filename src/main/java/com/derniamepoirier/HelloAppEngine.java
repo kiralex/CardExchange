@@ -1,5 +1,6 @@
 package com.derniamepoirier;
 
+import com.derniamepoirier.CardClasses.Card;
 import com.derniamepoirier.Pixabay.PixabayApiKeyMissingException;
 import com.derniamepoirier.Pixabay.PixabayFetcher;
 import com.derniamepoirier.Pixabay.PixabayIncorrectParameterException;
@@ -12,6 +13,7 @@ import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
 import com.harium.dotenv.Env;
+import org.json.JSONObject;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -74,7 +76,13 @@ public class HelloAppEngine extends HttpServlet {
 
     PixabayFetcher.PixabayAPIOptions options[] = new PixabayFetcher.PixabayAPIOptions[]{PixabayFetcher.ImageType.ILLUSTRATION};
     try {
-      PixabayFetcher.fetch(options);
+      JSONObject pixaResponse = PixabayFetcher.fetch(options);
+      Card cards[] = Card.fromPixabayRespond(pixaResponse, 3);
+
+      for (Card c: cards ) {
+        log.info(c.toString());
+      }
+
     } catch (PixabayIncorrectParameterException e) {
       e.printStackTrace();
     } catch (PixabayApiKeyMissingException e) {

@@ -222,6 +222,23 @@
               </resources>
             </configuration>
           </execution>
+          <execution>
+            <id>copy-resources2</id>
+            <!-- here the phase you need -->
+            <phase>validate</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/${project.build.finalName}/schemas</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>schemas</directory>
+                  <filtering>false</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
 

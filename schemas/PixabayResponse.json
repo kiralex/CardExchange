@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "id" : "PixabayResponse.json",
+  "description": "Structure of a valid response of Pixabay API when requesting images",
+  "type": "object",
+  "properties": {
+    "totalHits":{
+      "type": "integer",
+      "description": "Number of hits of the request"
+    },
+    "hits": {
+      "type": "array",
+      "items": {
+        "$ref": "PixabayImage.json"
+      },
+      "description": "array of PixabayImage containing Images informations"
+    }
+  },
+
+  "required": ["totalHits", "hits"]
+}
