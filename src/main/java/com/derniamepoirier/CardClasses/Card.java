@@ -1,6 +1,7 @@
 package com.derniamepoirier.CardClasses;
 
 import com.derniamepoirier.HelloAppEngine;
+import com.google.appengine.api.datastore.*;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
@@ -8,7 +9,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -97,6 +101,21 @@ public class Card {
 
     public String getPixabayAuthorName() {
         return pixabayAuthorName;
+    }
+
+    public void saveToSore(){
+//        Key groupKey = KeyFactory.createKey("PixabayImage", this.id);
+
+        Entity pixabayImage = new Entity("PixabayImage", this.id);
+        pixabayImage.setProperty("tags", new JSONArray(this.tags).toString());
+        pixabayImage.setProperty("pixabayPageURL", this.pixabayPageURL.toString());
+        pixabayImage.setProperty("pixabayImageURL", this.pixabayImageURL.toString());
+        pixabayImage.setProperty("pixabayAuthorName", this.pixabayAuthorName);
+        pixabayImage.setProperty("cardURL", null);
+
+        DatastoreService datastore =
+                DatastoreServiceFactory.getDatastoreService();
+        datastore.put(pixabayImage);
     }
 
     @Override

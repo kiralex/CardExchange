@@ -81,6 +81,7 @@ public class HelloAppEngine extends HttpServlet {
 
       for (Card c: cards ) {
         log.info(c.toString());
+        c.saveToSore();
       }
 
     } catch (PixabayIncorrectParameterException e) {
