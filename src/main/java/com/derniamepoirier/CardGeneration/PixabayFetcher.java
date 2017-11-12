@@ -1,4 +1,4 @@
-package com.derniamepoirier.Pixabay;
+package com.derniamepoirier.CardGeneration;
 
 import com.harium.dotenv.Env;
 import org.apache.http.HttpResponse;
@@ -7,6 +7,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -14,14 +15,24 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.logging.Logger;
 
+
+/**
+ * The purpose of this class is to fetch data on Pixabay API
+ */
 public class PixabayFetcher {
     private static final Logger log = Logger.getLogger(PixabayFetcher.class.getName());
     private static final String PIXABAY_API_KEY = Env.get("PIXABAY_API_KEY");
 
     private PixabayFetcher(){}
 
+    /**
+     * Interface which represent a valid option to Pixabay API
+     */
     public interface PixabayAPIOptions {}
 
+    /**
+     * Enum of valid languages in Pixabay API
+     */
     public enum Lang implements PixabayAPIOptions {
         CS("cs"), DA("da"), DE("de"), EN("en"), ES("es"), FR("fr"), ID("id"), IT("it"), HU("hu"), NL("nl"), NO("no"), PL("pl"), PT("pt"), RO("ro"), SK("sk"), FI("fi"), SV("sv"), TR("tr"), VI("vi"), TH("th"), BG("bg"), RU("ru"), EL("el"), JA("ja"), KO("ko"), ZH("zk");
 
@@ -37,6 +48,9 @@ public class PixabayFetcher {
         }
     }
 
+    /**
+     * Enum of valid image types in Pixabay API
+     */
     public enum ImageType implements PixabayAPIOptions {
         ALL("all"), PHOTO("photo"), ILLUSTRATION("illustration"), VECTOR("vector");
 
@@ -51,6 +65,9 @@ public class PixabayFetcher {
         }
     }
 
+    /**
+     * Enum of valid image orientation modes in Pixabay API
+     */
     public enum Orientation implements PixabayAPIOptions {
         ALL("all"), HORIZONTAL("horizontal"), VERTICAL("vertical");
 
@@ -67,6 +84,9 @@ public class PixabayFetcher {
 
     }
 
+    /**
+     * Enum of valid image categories in Pixabay API
+     */
     public enum Category implements PixabayAPIOptions {
         ALL("all"), FASHION("fashion"), NATURE("nature"), BACKGROUNDS("backgrounds"), SCIENCE("science"), EDUCATION("education"), PEOPLE("people"), FEELINGS("feelings"), RELIGION("religion"), HEALTH("health"), PLACES("places"), ANIMALS("animals"), INDUSTRY("industry"), FOOD("food"), COMPUTER("computer"), SPORTS("sports"), TRANSPORTATION("transportation"), TRAVEL("travel"), BUILDINGS("buildings"), BUSINESS("business"), MUSIC("music");
 
@@ -77,6 +97,9 @@ public class PixabayFetcher {
         }
     }
 
+    /**
+     * Enum of valid sort methods in Pixabay API
+     */
     public enum Order implements PixabayAPIOptions {
         LATEST("latest"), POPULAR("popular");
 
@@ -92,6 +115,9 @@ public class PixabayFetcher {
         }
     }
 
+    /**
+     * Enable or disable NSFW (Not Safe For Work) images
+     */
     public enum SafeSearch implements PixabayAPIOptions {
         ENABLED("true"), DISABLED("false");
 
@@ -107,6 +133,9 @@ public class PixabayFetcher {
         }
     }
 
+    /**
+     * Chosse if all image have to be in editor choice or not
+     */
     public enum EditorChoice implements PixabayAPIOptions {
         ENABLED("true"), DISABLED("false");
 
@@ -122,25 +151,19 @@ public class PixabayFetcher {
         }
     }
 
-    public static String fetch() throws PixabayIncorrectParameterException, PixabayApiKeyMissingException, PixabayResponseCodeException {
-        return PixabayFetcher.fetch("", new PixabayAPIOptions[]{}, 1, 20);
-    }
 
-    public static String fetch(String query) throws PixabayIncorrectParameterException, PixabayApiKeyMissingException, PixabayResponseCodeException {
-        return PixabayFetcher.fetch(query, new PixabayAPIOptions[]{}, 1, 20);
-    }
-
-    public static String fetch(PixabayAPIOptions options[]) throws PixabayIncorrectParameterException, PixabayApiKeyMissingException, PixabayResponseCodeException {
-        return PixabayFetcher.fetch("", options, 1, 20);
-    }
-
-
-    public static String fetch(String query, PixabayAPIOptions options[]) throws PixabayIncorrectParameterException, PixabayApiKeyMissingException, PixabayResponseCodeException {
-        return PixabayFetcher.fetch(query, options, 1, 20);
-    }
-
-
-    public static String fetch(String query, PixabayAPIOptions options[], int page, int nbResultsPerPage) throws PixabayApiKeyMissingException, PixabayIncorrectParameterException, PixabayResponseCodeException {
+    /**
+     *
+     * @param page page offset number
+     * @param nbResultsPerPage number of results per page
+     * @param query String containing keywords
+     * @param options array of {@link PixabayAPIOptions}
+     * @return JSONObject which contain the Pixabay API response
+     * @throws PixabayIncorrectParameterException Exception throwed if parameters are incorects
+     * @throws PixabayApiKeyMissingException Exception throwed if API key is missing in environment variables
+     * @throws PixabayResponseCodeException Exception throwed if Pixabay respond an error code
+     */
+    public static JSONObject fetch(String query, PixabayAPIOptions options[], int page, int nbResultsPerPage) throws PixabayApiKeyMissingException, PixabayIncorrectParameterException, PixabayResponseCodeException {
 
         // Checking parametters
         if(PIXABAY_API_KEY == null || PIXABAY_API_KEY.isEmpty())
@@ -199,6 +222,7 @@ public class PixabayFetcher {
                     .addParameter("key", PIXABAY_API_KEY);
 
             URL url = uriBuilder.build().toURL();
+            log.info("API request : " + url.toString());
             urlString = url.toString();
 
 
@@ -239,8 +263,6 @@ public class PixabayFetcher {
         try {
              responseBody = EntityUtils
                     .toString(getStubResponse.getEntity());
-
-            log.info(responseBody);
         } catch (IOException e) {
             log.severe("Error while getting API Response body: " + e.getMessage());
             return null;
@@ -254,6 +276,6 @@ public class PixabayFetcher {
 
 
 
-        return responseBody;
+        return new JSONObject(responseBody);
     }
 }
