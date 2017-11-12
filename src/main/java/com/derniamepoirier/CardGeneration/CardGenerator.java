@@ -26,27 +26,34 @@ public class CardGenerator {
 
         int nbGenerated = 0;
         int nbIterations = 1;
-
+        boolean pageOutOfRange = false;
         Card cards[] = new Card[nbCard];
 
-        while(nbGenerated < nbCard) {
-            JSONObject obj = PixabayFetcher.fetch(query, options, nbIterations, 2*(nbCard-nbGenerated));
-            Card[] cardsTemp = Card.fromPixabayRespond(obj, nbCard-nbGenerated);
 
-            for(int i = 0; i < cardsTemp.length && nbGenerated < nbCard; i++){
-                Card c = cardsTemp[i];
-                cards[nbGenerated] = c;
-                c.generateCardImage();
-                c.saveToSore();
+        while(!pageOutOfRange && nbGenerated < nbCard) {
+            JSONObject obj = null;
+            try {
+                obj = PixabayFetcher.fetch(query, options, nbIterations, Math.min(nbCard-nbGenerated, 100));
 
-                nbGenerated++;
+                Card[] cardsTemp = Card.fromPixabayRespond(obj, nbCard-nbGenerated);
+
+                for(int i = 0; i < cardsTemp.length && nbGenerated < nbCard; i++){
+                    Card c = cardsTemp[i];
+                    cards[nbGenerated] = c;
+                    c.generateCardImage();
+                    c.saveToSore();
+
+                    nbGenerated++;
+                }
+
+                nbIterations++;
+            } catch (PixabayPageOutValidRangeException e) {
+                pageOutOfRange = true;
             }
 
-
-            nbIterations++;
         }
 
-        log.info(nbCard+ " cards generated from iteration on " + nbIterations + " iterations." );
+        log.info(nbGenerated + " cards generated from iteration on " + nbIterations + " iterations." );
         return cards;
     }
 }

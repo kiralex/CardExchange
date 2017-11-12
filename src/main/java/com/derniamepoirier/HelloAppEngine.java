@@ -23,9 +23,11 @@ public class HelloAppEngine extends HttpServlet {
 
     Properties properties = System.getProperties();
 
-    response.setContentType("text/plain");
-    response.getWriter().println("Hello App Engine - Standard using "
-        + SystemProperty.version.get() + " Java " + properties.get("java.specification.version"));
+    //response.setContentType("text/plain");
+
+    response.getWriter().println("<title>Yolo !</title");
+    response.getWriter().println("<p>Hello App Engine - Standard using "
+        + SystemProperty.version.get() + " Java " + properties.get("java.specification.version") + "</p>");
 
 
 
@@ -63,7 +65,7 @@ public class HelloAppEngine extends HttpServlet {
     PixabayFetcher.PixabayAPIOptions options[] = new PixabayFetcher.PixabayAPIOptions[]{PixabayFetcher.ImageType.ILLUSTRATION, PixabayFetcher.Order.LATEST};
 
     try {
-//      Card cards[] = CardGenerator.generate("tortue", options, 5);
+      Card cards[] = CardGenerator.generate("tortue", options, 1000);
 //
 //      for (Card c: cards ) {
 //        response.getWriter().println(c);
@@ -72,6 +74,12 @@ public class HelloAppEngine extends HttpServlet {
 
       response.getWriter().println(Card.drawFromStore());
     } catch (DatastoreGetter.DataStoreNotAvailableException e) {
+      e.printStackTrace();
+    } catch (PixabayIncorrectParameterException e) {
+      e.printStackTrace();
+    } catch (PixabayApiKeyMissingException e) {
+      e.printStackTrace();
+    } catch (PixabayResponseCodeException e) {
       e.printStackTrace();
     }
 

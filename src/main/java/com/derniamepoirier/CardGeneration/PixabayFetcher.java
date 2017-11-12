@@ -162,7 +162,7 @@ public class PixabayFetcher {
      * @throws PixabayApiKeyMissingException Exception throwed if API key is missing in environment variables
      * @throws PixabayResponseCodeException Exception throwed if Pixabay respond an error code
      */
-    public static JSONObject fetch(String query, PixabayAPIOptions options[], int page, int nbResultsPerPage) throws PixabayApiKeyMissingException, PixabayIncorrectParameterException, PixabayResponseCodeException {
+    public static JSONObject fetch(String query, PixabayAPIOptions options[], int page, int nbResultsPerPage) throws PixabayApiKeyMissingException, PixabayIncorrectParameterException, PixabayResponseCodeException, PixabayPageOutValidRangeException {
 
         // Checking parametters
         if(PIXABAY_API_KEY == null || PIXABAY_API_KEY.isEmpty())
@@ -249,7 +249,7 @@ public class PixabayFetcher {
 
 
         // Check status code
-        int getStubStatusCode = getStubResponse.getStatusLine()
+        int statusCode = getStubResponse.getStatusLine()
                 .getStatusCode();
 
         String responseBody = "";
@@ -263,11 +263,13 @@ public class PixabayFetcher {
             return null;
         }
 
-        if(getStubStatusCode == 429)
+        if(statusCode == 429)
             throw new PixabayResponseCodeException("Pixabay API rate limit exceeded");
+        else if(statusCode == 400)
+            throw new PixabayPageOutValidRangeException("page is out of valid range");
 
-        if (getStubStatusCode < 200 || getStubStatusCode >= 300)
-            throw new PixabayResponseCodeException("Pixabay API respond code " + getStubStatusCode + " -> " + responseBody);
+        if (statusCode < 200 || statusCode >= 300)
+            throw new PixabayResponseCodeException("Pixabay API respond code " + statusCode + " -> " + responseBody);
 
 
 

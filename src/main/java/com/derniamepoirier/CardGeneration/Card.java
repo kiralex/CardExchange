@@ -135,7 +135,7 @@ public class Card {
 
         Query query = new Query("Card");
         PreparedQuery preparedQuery = datastore.prepare(query);
-        List<Entity> entities = preparedQuery.asList(FetchOptions.Builder.withLimit(Integer.MAX_VALUE));
+        List<Entity> entities = preparedQuery.asList(FetchOptions.Builder.withDefaults());
 
         log.info("nb entities : " + entities.size());
 
