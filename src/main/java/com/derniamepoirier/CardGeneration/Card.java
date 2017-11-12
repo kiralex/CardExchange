@@ -34,6 +34,7 @@ public class Card {
      * If the card already exists in {@link DatastoreService}, the {@link Card} won't be returned
      * @param response {@link JSONObject} containing Pixabay API response
      * @param nbCards max number of cards to generate
+     * @throws DatastoreGetter.DataStoreNotAvailableException Exception throwed if {@link DatastoreService} is not available
      * @return array of {@link Card}
      */
     public static Card[] fromPixabayRespond(JSONObject response, int nbCards) throws DatastoreGetter.DataStoreNotAvailableException {
@@ -125,7 +126,8 @@ public class Card {
      *              <li>true if the card exists</li>
      *              <li>false if not</li>
      *          </ul>
-     * @throws DatastoreGetter.DataStoreNotAvailableException
+     *
+     * @throws DatastoreGetter.DataStoreNotAvailableException Exception throwed if {@link DatastoreService} is not available
      */
     public static boolean existInStore(int id) throws DatastoreGetter.DataStoreNotAvailableException {
         DatastoreService service = DatastoreGetter.getDatastore();
