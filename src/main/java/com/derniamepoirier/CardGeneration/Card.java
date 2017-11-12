@@ -17,17 +17,21 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 import java.util.logging.Logger;
 
 
 public class Card {
     private static final Logger log = Logger.getLogger(Card.class.getName());
 
-    private int id;
+    private long id;
     private String tags[];
     private URL pixabayPageURL;
     private URL pixabayImageURL;
+    private URL cardImageURL;
     private String pixabayAuthorName;
+    private double probability;
 
     /**
      * Generate array of {@link Card} from JSON Pixabay API response
@@ -54,7 +58,7 @@ public class Card {
         Schema schema = SchemaLoader.builder().resolutionScope("file:"+schemasPath).schemaJson(responseJSON).build().load().build();
 
         try {
-            schema.validate(response); // throws a ValidationException if this object is invalid
+            schema.validate(response); // thcardrows a ValidationException if this object is invalid
         }catch(ValidationException e){
             log.severe("Pixabay api response is not valid : " + e.getMessage());
             e.getCausingExceptions().stream()
@@ -96,7 +100,7 @@ public class Card {
      *          </ul>
      * @throws DatastoreGetter.DataStoreNotAvailableException throwed if the {@link DatastoreService} is not available
      */
-    public static Card restoreFromStore(int id) throws DatastoreGetter.DataStoreNotAvailableException {
+    public static Card restoreFromStore(long id) throws DatastoreGetter.DataStoreNotAvailableException {
         DatastoreService service = DatastoreGetter.getDatastore();
 
         Key k = KeyFactory.createKey("Card", id);
@@ -108,15 +112,54 @@ public class Card {
         }
 
         String tags[] = ((String) cardEntity.getProperty("tags")).split(",\\s*");
-        URL pixabayPageURL = null, pixabayImageURL = null;
+        URL pixabayPageURL = null, pixabayImageURL = null, cardImageURL = null;
         try {
             pixabayPageURL = new URL((String) cardEntity.getProperty("pixabayPageURL"));
             pixabayImageURL = new URL((String) cardEntity.getProperty("pixabayImageURL"));
+            cardImageURL = new URL((String) cardEntity.getProperty("cardImageURL"));
         } catch (MalformedURLException e) { /* will not be throwed */ }
         String authorName = (String) cardEntity.getProperty("pixabayAuthorName");
+        double probability = ((Double) cardEntity.getProperty("probability")).doubleValue();
 
 
-        return new Card(id, tags, pixabayPageURL, pixabayImageURL, authorName);
+        return new Card(id, tags, pixabayPageURL, pixabayImageURL, cardImageURL, authorName, probability);
+    }
+
+    /**
+     * Get a random {@link Card} from the store store. (Fortune Wheel method). Use their rarity to draw (tirer in French) a card
+     * @return random Card
+     * @throws DatastoreGetter.DataStoreNotAvailableException Exception throwed if {@link DatastoreService} is not available
+     */
+    public static Card drawFromStore() throws DatastoreGetter.DataStoreNotAvailableException {
+        DatastoreService datastore = DatastoreGetter.getDatastore();
+
+        Query query = new Query("Card");
+        PreparedQuery preparedQuery = datastore.prepare(query);
+        List<Entity> entities = preparedQuery.asList(FetchOptions.Builder.withDefaults());
+
+        log.info("nb entities : " + entities.size());
+
+        double maxProba = 0.0;
+        for(Entity e : entities){
+            maxProba += ((Double) e.getProperty("probability")).doubleValue();
+        }
+
+        Random r = new Random();
+        double randomValue = (maxProba) * r.nextDouble();
+
+        double sum = 0;
+        int index = 0;
+        long id = -1;
+        while(sum < randomValue){
+            sum += ((Double) entities.get(index).getProperty("probability")).doubleValue();
+            index++;
+            id = entities.get(index).getKey().getId();
+        }
+
+        if(id == -1)
+            return null;
+        return Card.restoreFromStore(id);
+
     }
 
     /**
@@ -129,7 +172,7 @@ public class Card {
      *
      * @throws DatastoreGetter.DataStoreNotAvailableException Exception throwed if {@link DatastoreService} is not available
      */
-    public static boolean existInStore(int id) throws DatastoreGetter.DataStoreNotAvailableException {
+    public static boolean existInStore(long id) throws DatastoreGetter.DataStoreNotAvailableException {
         DatastoreService service = DatastoreGetter.getDatastore();
 
         Key k = KeyFactory.createKey("Card", id);
@@ -150,20 +193,37 @@ public class Card {
      * @param pixabayPageURL URL of the image page
      * @param pixabayImageURL URL to download Pixabay image
      * @param pixabayAuthorName Author of the original image
+     * @param probability probability between 0 and 1 to draw the card
+     * @param cardImageURL url of the card image
      */
-    public Card(int id, String[] tags, URL pixabayPageURL, URL pixabayImageURL, String pixabayAuthorName) {
+    public Card(long id, String[] tags, URL pixabayPageURL, URL pixabayImageURL, URL cardImageURL, String pixabayAuthorName, double probability) {
+        this(id, tags, pixabayPageURL, pixabayImageURL, pixabayAuthorName);
+        this.probability = probability;
+        this.cardImageURL = cardImageURL;
+    }
+
+    /**
+     * Constructor of {@link Card}
+     * @param id id of the card
+     * @param tags Tags of the card
+     * @param pixabayPageURL URL of the image page
+     * @param pixabayImageURL URL to download Pixabay image
+     * @param pixabayAuthorName Author of the original image
+     */
+    private Card(long id, String[] tags, URL pixabayPageURL, URL pixabayImageURL, String pixabayAuthorName) {
         this.id = id;
         this.tags = tags;
         this.pixabayPageURL = pixabayPageURL;
         this.pixabayImageURL = pixabayImageURL;
         this.pixabayAuthorName = pixabayAuthorName;
+        this.probability = Math.random();
     }
 
     /**
      * Getter of id
      * @return id of the card
      */
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -200,6 +260,18 @@ public class Card {
     }
 
     /**
+     * Getter of the {@link Card} image URL
+     * @return {@link Card} image URL
+     */
+    public URL getCardImageURL() { return cardImageURL; }
+
+    /**
+     * Getter of the {@link Card} probability
+     * @return {@link Card} probability
+     */
+    public double getProbability() { return probability; }
+
+    /**
      * Save an instance of {@link Card} to Store
      * @throws DatastoreGetter.DataStoreNotAvailableException error throwed if {@link DatastoreService} is not available
      */
@@ -209,10 +281,16 @@ public class Card {
         pixabayImage.setProperty("pixabayPageURL", this.pixabayPageURL.toString());
         pixabayImage.setProperty("pixabayImageURL", this.pixabayImageURL.toString());
         pixabayImage.setProperty("pixabayAuthorName", this.pixabayAuthorName);
-        pixabayImage.setProperty("cardURL", null);
+        pixabayImage.setProperty("cardImageURL", this.cardImageURL);
+        pixabayImage.setProperty("probability", this.probability);
 
         DatastoreService datastore = DatastoreGetter.getDatastore();
         datastore.put(pixabayImage);
+    }
+
+    // TODO : generate Card image with Graphics2D
+    public void generateCardImage(){
+
     }
 
     @Override
@@ -232,11 +310,16 @@ public class Card {
 
     @Override
     public int hashCode() {
-        int result = id;
+        int result;
+        long temp;
+        result = (int) (id ^ (id >>> 32));
         result = 31 * result + Arrays.hashCode(tags);
         result = 31 * result + pixabayPageURL.hashCode();
         result = 31 * result + pixabayImageURL.hashCode();
+        result = 31 * result + cardImageURL.hashCode();
         result = 31 * result + pixabayAuthorName.hashCode();
+        temp = Double.doubleToLongBits(probability);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
     }
 
