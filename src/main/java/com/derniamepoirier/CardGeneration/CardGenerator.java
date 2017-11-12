@@ -33,18 +33,20 @@ public class CardGenerator {
             JSONObject obj = PixabayFetcher.fetch(query, options, nbIterations, 2*(nbCard-nbGenerated));
             Card[] cardsTemp = Card.fromPixabayRespond(obj, nbCard-nbGenerated);
 
-            for (Card c : cardsTemp) {
+            for(int i = 0; i < cardsTemp.length && nbGenerated < nbCard; i++){
+                Card c = cardsTemp[i];
                 cards[nbGenerated] = c;
+                c.generateCardImage();
                 c.saveToSore();
 
                 nbGenerated++;
             }
 
-            log.info(cardsTemp.length + " cards generated from iteration " + nbIterations + "(Total : " + nbGenerated + ")" );
 
             nbIterations++;
         }
 
+        log.info(nbCard+ " cards generated from iteration on " + nbIterations + " iterations." );
         return cards;
     }
 }

@@ -10,7 +10,6 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.logging.Logger;
@@ -228,10 +227,6 @@ public class PixabayFetcher {
 
         } catch (URISyntaxException e) {
             log.severe("Error while generating URL for API call : " + e.getMessage() + " " + e.getReason());
-            return null;
-        }
-        catch (MalformedURLException e) {
-            log.severe("Error while generating URL for API call : " + e.getMessage());
             return null;
         } catch (IOException e) {
             log.severe("Error while generating URL for API call : " + e.getMessage());

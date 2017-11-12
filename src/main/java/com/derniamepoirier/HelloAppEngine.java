@@ -63,13 +63,14 @@ public class HelloAppEngine extends HttpServlet {
     PixabayFetcher.PixabayAPIOptions options[] = new PixabayFetcher.PixabayAPIOptions[]{PixabayFetcher.ImageType.ILLUSTRATION, PixabayFetcher.Order.LATEST};
 
     try {
-      CardGenerator.generate("tortue", options, 5);
-    } catch (PixabayIncorrectParameterException e) {
-      e.printStackTrace();
-    } catch (PixabayApiKeyMissingException e) {
-      e.printStackTrace();
-    } catch (PixabayResponseCodeException e) {
-      e.printStackTrace();
+//      Card cards[] = CardGenerator.generate("tortue", options, 5);
+//
+//      for (Card c: cards ) {
+//        response.getWriter().println(c);
+//      }
+      response.getWriter().println("=======================");
+
+      response.getWriter().println(Card.drawFromStore());
     } catch (DatastoreGetter.DataStoreNotAvailableException e) {
       e.printStackTrace();
     }
