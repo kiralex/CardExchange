@@ -1,4 +1,4 @@
-package com.derniamepoirier.Pixabay;
+package com.derniamepoirier.CardGeneration;
 
 /**
  * Error throwed when Pixabay respond code is an error code

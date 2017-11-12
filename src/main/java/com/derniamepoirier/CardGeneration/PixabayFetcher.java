@@ -1,4 +1,4 @@
-package com.derniamepoirier.Pixabay;
+package com.derniamepoirier.CardGeneration;
 
 import com.harium.dotenv.Env;
 import org.apache.http.HttpResponse;
@@ -149,55 +149,6 @@ public class PixabayFetcher {
         public String toString() {
             return this.safeSearch;
         }
-    }
-
-    /**
-     * Fetch Pixabay API with default parameters (no keyword or option)
-     * @return JSONObject which contain the Pixabay API response
-     * @throws PixabayIncorrectParameterException Exception throwed if parameters are incorects
-     * @throws PixabayApiKeyMissingException Exception throwed if API key is missing in environment variables
-     * @throws PixabayResponseCodeException Exception throwed if Pixabay respond an error code
-     */
-    public static JSONObject fetch() throws PixabayIncorrectParameterException, PixabayApiKeyMissingException, PixabayResponseCodeException {
-        return PixabayFetcher.fetch("", new PixabayAPIOptions[]{}, 1, 20);
-    }
-
-    /**
-     * Fetch API with only keywords
-     * @param query String containing keywords
-     * @return JSONObject which contain the Pixabay API response
-     * @throws PixabayIncorrectParameterException Exception throwed if parameters are incorects
-     * @throws PixabayApiKeyMissingException Exception throwed if API key is missing in environment variables
-     * @throws PixabayResponseCodeException Exception throwed if Pixabay respond an error code
-     */
-    public static JSONObject fetch(String query) throws PixabayIncorrectParameterException, PixabayApiKeyMissingException, PixabayResponseCodeException {
-        return PixabayFetcher.fetch(query, new PixabayAPIOptions[]{}, 1, 20);
-    }
-
-    /**
-     * Fetch API with only options and no keyword
-     * @param options array of {@link PixabayAPIOptions}
-     * @return JSONObject which contain the Pixabay API response
-     * @throws PixabayIncorrectParameterException Exception throwed if parameters are incorects
-     * @throws PixabayApiKeyMissingException Exception throwed if API key is missing in environment variables
-     * @throws PixabayResponseCodeException Exception throwed if Pixabay respond an error code
-     */
-    public static JSONObject fetch(PixabayAPIOptions options[]) throws PixabayIncorrectParameterException, PixabayApiKeyMissingException, PixabayResponseCodeException {
-        return PixabayFetcher.fetch("", options, 1, 20);
-    }
-
-
-    /**
-     * Fetch API with only options and keywords
-     * @param query String containing keywords
-     * @param options array of {@link PixabayAPIOptions}
-     * @return JSONObject which contain the Pixabay API response
-     * @throws PixabayIncorrectParameterException Exception throwed if parameters are incorects
-     * @throws PixabayApiKeyMissingException Exception throwed if API key is missing in environment variables
-     * @throws PixabayResponseCodeException Exception throwed if Pixabay respond an error code
-     */
-    public static JSONObject fetch(String query, PixabayAPIOptions options[]) throws PixabayIncorrectParameterException, PixabayApiKeyMissingException, PixabayResponseCodeException {
-        return PixabayFetcher.fetch(query, options, 1, 20);
     }
 
 
