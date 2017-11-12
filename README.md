@@ -1,14 +1,9 @@
-appengine-skeleton
+CardExchange
 ==================
 
-This is a generated application from the appengine-skeleton archetype.
+This is a Google App Engine app. The goal of this app is to collect cards.
 
-See the [Google App Engine standard environment documentation][ae-docs] for more
-detailed instructions.
-
-[ae-docs]: https://cloud.google.com/appengine/docs/java/
-
-#Installation
+# Installation
 ## Dependencies
 
 * openjdk-8-jre
