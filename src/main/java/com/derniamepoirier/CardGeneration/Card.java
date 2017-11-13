@@ -2,6 +2,15 @@ package com.derniamepoirier.CardGeneration;
 
 import com.derniamepoirier.Utils.DatastoreGetter;
 import com.google.appengine.api.datastore.*;
+import com.google.appengine.api.images.Image;
+import com.google.appengine.api.images.ImagesServiceFactory;
+import com.google.appengine.tools.cloudstorage.GcsFileOptions;
+import com.google.appengine.tools.cloudstorage.GcsFilename;
+import com.google.appengine.tools.cloudstorage.GcsService;
+import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
+import com.google.code.appengine.awt.Graphics2D;
+import com.google.code.appengine.awt.image.BufferedImage;
+import com.google.code.appengine.awt.image.DataBufferByte;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
@@ -9,12 +18,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +35,11 @@ public class Card {
     private long id;
     private String tags[];
     private URL pixabayPageURL;
+
+    // URL of the pixabay image
     private URL pixabayImageURL;
+
+    // URL of the card
     private URL cardImageURL;
     private String pixabayAuthorName;
     private double probability;
@@ -289,8 +300,21 @@ public class Card {
     }
 
     // TODO : generate Card image with Graphics2D
-    public void generateCardImage(){
+    public void generateCardImage() throws IOException {
+        BufferedImage bfImg = new BufferedImage(600, 900, BufferedImage.TYPE_3BYTE_BGR);
+        Graphics2D g2d = bfImg.createGraphics();
+        g2d.drawString("Panda koala et voila", 10, 15);
+        byte[] byteImgArray = ((DataBufferByte) bfImg.getRaster().getDataBuffer()).getData();
 
+        Image image = ImagesServiceFactory.makeImage(byteImgArray);
+
+        // transform image
+        GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/jpeg").build();
+        GcsService service = GcsServiceFactory.createGcsService();
+        GcsFilename name = new GcsFilename("cardexchangemaven.appspot.com", "koala_panda.jpg");
+
+        ByteBuffer buff =  ByteBuffer.wrap(image.getImageData());
+        service.createOrReplace(name, opt, buff);
     }
 
     @Override
