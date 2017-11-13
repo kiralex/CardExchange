@@ -1,16 +1,20 @@
 package com.derniamepoirier.CardGeneration;
 
+
 import com.derniamepoirier.Utils.DatastoreGetter;
 import com.google.appengine.api.datastore.*;
 import com.google.appengine.api.images.Image;
 import com.google.appengine.api.images.ImagesServiceFactory;
-import com.google.appengine.tools.cloudstorage.GcsFileOptions;
-import com.google.appengine.tools.cloudstorage.GcsFilename;
-import com.google.appengine.tools.cloudstorage.GcsService;
-import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
+import com.google.appengine.tools.cloudstorage.*;
+import com.google.code.appengine.awt.Color;
+import com.google.code.appengine.awt.Font;
 import com.google.code.appengine.awt.Graphics2D;
 import com.google.code.appengine.awt.image.BufferedImage;
-import com.google.code.appengine.awt.image.DataBufferByte;
+import com.google.code.appengine.imageio.IIOImage;
+import com.google.code.appengine.imageio.ImageIO;
+import com.google.code.appengine.imageio.ImageWriteParam;
+import com.google.code.appengine.imageio.ImageWriter;
+import com.google.code.appengine.imageio.stream.ImageOutputStream;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
@@ -22,12 +26,8 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.logging.Logger;
-
 
 public class Card {
     private static final Logger log = Logger.getLogger(Card.class.getName());
@@ -161,7 +161,7 @@ public class Card {
         double sum = 0;
         int index = 0;
         long id = -1;
-        while(sum < randomValue){
+        while(sum < randomValue && index < entities.size()){
             sum += ((Double) entities.get(index).getProperty("probability")).doubleValue();
             index++;
             id = entities.get(index).getKey().getId();
@@ -299,21 +299,62 @@ public class Card {
         datastore.put(pixabayImage);
     }
 
+
+    private byte[] getBytes(BufferedImage image) throws IOException {
+        Iterator iter = ImageIO.getImageWritersByFormatName("png");
+        ImageWriter writer = (ImageWriter)iter.next();
+
+        if (writer == null) {
+            log.severe("Yolo !!!!!!! RIEN NE VA PLUS !!!!!!!!!");
+            return null;
+        }
+
+
+        log.info("Tout vas bien pour le moment !!!");
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        ImageOutputStream ios = ImageIO.createImageOutputStream(bytes);
+        writer.setOutput(ios);
+
+        log.info("Tout vas bien pour le moment 2 _________");
+
+        ImageWriteParam param = writer.getDefaultWriteParam();
+
+        if (param.canWriteCompressed()) {
+            // NOTE: Any method named [set|get]Compression.* throws UnsupportedOperationException if false
+            param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+            param.setCompressionQuality(0.9f);
+        }
+
+
+        IIOImage iioImage = new IIOImage(image, null, null);
+        writer.write(null, iioImage, param);
+        ios.close();
+        writer.dispose();
+        return bytes.toByteArray();
+    }
+
     // TODO : generate Card image with Graphics2D
     public void generateCardImage() throws IOException {
         BufferedImage bfImg = new BufferedImage(600, 900, BufferedImage.TYPE_3BYTE_BGR);
         Graphics2D g2d = bfImg.createGraphics();
-        g2d.drawString("Panda koala et voila", 10, 15);
-        byte[] byteImgArray = ((DataBufferByte) bfImg.getRaster().getDataBuffer()).getData();
+        g2d.setBackground(Color.WHITE);
+        g2d.fillRect(0, 0, 600, 900);
 
-        Image image = ImagesServiceFactory.makeImage(byteImgArray);
+        g2d.setColor(Color.BLUE);
+        g2d.setFont(new Font("TimesRoman", Font.PLAIN, 66));
+        g2d.drawString(String.join(",",this.tags), 300, 100);
+
+
+        Image image = ImagesServiceFactory.makeImage(this.getBytes(bfImg));
 
         // transform image
-        GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/jpeg").build();
+        GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/jpeg")
+                .acl("public-read").build();
         GcsService service = GcsServiceFactory.createGcsService();
-        GcsFilename name = new GcsFilename("cardexchangemaven.appspot.com", "koala_panda.jpg");
+        GcsFilename name = new GcsFilename("cardexchangemaven.appspot.com", this.id+".jpg");
 
         ByteBuffer buff =  ByteBuffer.wrap(image.getImageData());
+
         service.createOrReplace(name, opt, buff);
     }
 
