@@ -20,7 +20,6 @@ import java.util.logging.Logger;
  */
 public class PixabayFetcher {
     private static final Logger log = Logger.getLogger(PixabayFetcher.class.getName());
-    private static final String PIXABAY_API_KEY = Env.get("PIXABAY_API_KEY");
 
     private PixabayFetcher(){}
 
@@ -163,6 +162,9 @@ public class PixabayFetcher {
      * @throws PixabayResponseCodeException Exception throwed if Pixabay respond an error code
      */
     public static JSONObject fetch(String query, PixabayAPIOptions options[], int page, int nbResultsPerPage) throws PixabayApiKeyMissingException, PixabayIncorrectParameterException, PixabayResponseCodeException, PixabayPageOutValidRangeException {
+
+        Env.loadParams("./configuration", "env");
+        final String PIXABAY_API_KEY = Env.get("PIXABAY_API_KEY");
 
         // Checking parametters
         if(PIXABAY_API_KEY == null || PIXABAY_API_KEY.isEmpty())
