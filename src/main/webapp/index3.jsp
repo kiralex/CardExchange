@@ -11,6 +11,12 @@
         toto la mer ! <br/>
 
         <c:out value="${requestScope.card.getPixabayPageURL()}" />
+
+        <img src="${requestScope.card.getPixabayImageURL()}" />
     </c:if>
+
+    <c:forEach var = "i" begin = "1" end = "5">
+        Item <c:out value = "Itération : ${i}"/><p>
+    </c:forEach>
 
 </t:userpage>
