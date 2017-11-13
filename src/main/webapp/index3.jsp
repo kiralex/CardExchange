@@ -1,4 +1,5 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page contentType="text/html" pageEncoding="UTF-8" language="java" %>
+
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
@@ -8,10 +9,7 @@
     User: ${user}
     
     <c:if test="${not empty requestScope.card}">
-        toto la mer ! <br/>
-
         <c:out value="${requestScope.card.getPixabayPageURL()}" />
-
         <img src="${requestScope.card.getPixabayImageURL()}" />
     </c:if>
 
