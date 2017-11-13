@@ -3,7 +3,6 @@ package com.derniamepoirier.CardGeneration;
 import com.derniamepoirier.Utils.DatastoreGetter;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.logging.Logger;
 
 public class CardGenerator {
@@ -41,7 +40,7 @@ public class CardGenerator {
                 for(int i = 0; i < cardsTemp.length && nbGenerated < nbCard; i++){
                     Card c = cardsTemp[i];
                     cards[nbGenerated] = c;
-                    c.generateCardImage();
+                    //c.generateCardImage();
                     c.saveToSore();
 
                     nbGenerated++;
@@ -50,10 +49,11 @@ public class CardGenerator {
                 nbIterations++;
             } catch (PixabayPageOutValidRangeException e) {
                 pageOutOfRange = true;
-            } catch (IOException e) {
-                log.severe("Generate card image failed");
-                e.printStackTrace();
             }
+//            catch (IOException e) {
+//                log.severe("Generate card image failed");
+//                e.printStackTrace();
+//            }
 
         }
 
