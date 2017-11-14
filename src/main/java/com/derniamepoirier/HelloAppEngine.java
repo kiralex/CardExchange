@@ -62,10 +62,10 @@ public class HelloAppEngine extends HttpServlet {
 //    ByteBuffer buff =  ByteBuffer.wrap(image.getImageData());
 //    service.createOrReplace(name, opt, buff);
 
-    PixabayFetcher.PixabayAPIOptions options[] = new PixabayFetcher.PixabayAPIOptions[]{PixabayFetcher.ImageType.PHOTO, PixabayFetcher.Order.LATEST};
+    PixabayFetcher.PixabayAPIOptions options[] = new PixabayFetcher.PixabayAPIOptions[]{PixabayFetcher.ImageType.PHOTO, PixabayFetcher.Order.POPULAR, PixabayFetcher.Orientation.VERTICAL};
 
     try {
-      Card cards[] = CardGenerator.generate("tortue", options, 3);
+      Card cards[] = CardGenerator.generate("poney", options, 3);
 //
 //      for (Card c: cards ) {
 //        response.getWriter().println(c);
