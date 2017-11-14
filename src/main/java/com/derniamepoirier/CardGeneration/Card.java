@@ -8,6 +8,8 @@ import com.google.appengine.tools.cloudstorage.GcsFileOptions;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
+import com.google.code.appengine.awt.Color;
+import com.google.code.appengine.awt.Font;
 import com.google.code.appengine.awt.Graphics2D;
 import com.google.code.appengine.awt.image.BufferedImage;
 import com.google.code.appengine.imageio.IIOImage;
@@ -342,60 +344,52 @@ public class Card {
         BufferedImage bfImg = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_3BYTE_BGR);
         Graphics2D cardGraphics = bfImg.createGraphics();
         // Get the image of pixabayImageURL
-//        BufferedImage newImg = ImageIO.read()
-
-
-//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//        InputStream inputStream = this.pixabayImageURL.openStream();
-//        int read;
-//        while ((read = inputStream.read()) != -1) {
-//            baos.write(read);
-//        }
-//
-//        ImagesService imagesService = ImagesServiceFactory.getImagesService();
-//        Image image = ImagesServiceFactory.makeImage(baos.toByteArray());
-//        // this throws an exception if data is not image or unsupported format
-//        // you can wrap this in try..catch and act accordingly
-//        image.getFormat();
-//        // this is a resize transform
-//        Transform resize = ImagesServiceFactory.makeResize(350, 400);
-//        // setting the output to PNG
-//        OutputSettings outputSettings = new OutputSettings(ImagesService.OutputEncoding.PNG);
-//        outputSettings.setQuality(100);
-//        // apply dummy transform and output settings
-//        Image newImage = imagesService.applyTransform(resize, image, outputSettings);
-//
-//
-//        // UPLOAD image
-//        GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/png").acl("public-read").build();
-//        GcsService service = GcsServiceFactory.createGcsService();
-//        GcsFilename name = new GcsFilename("cardexchangemaven.appspot.com", this.id+"_temp.png");
-//
-//        ByteBuffer buff =  ByteBuffer.wrap(newImage.getImageData());
-//        service.createOrReplace(name, opt, buff);
-//
-//
-//        URL pngImg = new URL("https://storage.googleapis.com/cardexchangemaven.appspot.com/"+this.id+"_temp.png");
-//        BufferedImage newImg = ImageIO.read(pngImg);
-
         BufferedImage newImg = Card.urlImageToBufferedImage(this.pixabayImageURL);
 
-        cardGraphics.drawImage(newImg, null, 25, 25);
 
-//        Graphics2D overlayGraphics = bfImgOverlay.createGraphics();
-//        overlayGraphics.drawImage(bfImgOverlay, null, 0, 0);
+//         fill the card background
+        cardGraphics.setColor(Color.getHSBColor(36, 75, 99));
+        cardGraphics.fillRect(0, 0, WIDTH, HEIGHT);
 
-        // fill the card background
-//        cardGraphics.setColor(Color.getHSBColor(36, 75, 100));
-//        cardGraphics.fillRect(0, 0, WIDTH, HEIGHT);
-//
-//
-//
-//        cardGraphics.setFont(new Font("TimesRoman", Font.PLAIN, 66));
-//        cardGraphics.drawString("Koala, panda", 100, 150);
-//
-//        Image image2 = ImagesServiceFactory.makeImage(this.getBytes(bfImg));
-//        // transform image
+        // Add image on the top of the card and resize it
+        cardGraphics.drawImage(newImg, 25, 25, 350, 400, null);
+
+        // Add the rarity square
+        cardGraphics.setColor(Color.red);
+        cardGraphics.fillRect(25, 450, 350, 25);
+        // Add the rarity text
+        cardGraphics.setColor(Color.WHITE);
+        cardGraphics.setFont(new Font("Purisa", Font.PLAIN, 15));
+        cardGraphics.drawString(""+this.probability+"%", 28, 485);
+
+        // Add the tags square
+        cardGraphics.setColor(Color.gray);
+        cardGraphics.fillRect(25, 485, 350, 25);
+        // Add tags text
+        cardGraphics.setColor(Color.WHITE);
+        cardGraphics.setFont(new Font("Courier", Font.PLAIN, 15));
+        for (int i = 0; i < this.tags.length ; i++) {
+            if (i == 0)
+                cardGraphics.drawString(""+this.tags[i], 28, 515);
+            else if (i < this.tags.length -1)
+                cardGraphics.drawString(", "+this.tags[i], 28 + i*40, 515);
+            else
+                cardGraphics.drawString(this.tags[i] + " !-_-!", 28 + i*40, 515);
+        }
+
+        // Add another square
+        cardGraphics.setColor(Color.gray);
+        cardGraphics.fillRect(25, 540, 350, 25);
+
+        // Add the id square
+        cardGraphics.setColor(Color.black);
+        cardGraphics.fill3DRect(325, 575, 50, 15, true);
+        // Add the id text
+        cardGraphics.setColor(Color.WHITE);
+        cardGraphics.setFont(new Font("Georgia", Font.PLAIN, 15));
+        cardGraphics.drawString(""+this.id, 28, 595);
+
+
         GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/jpeg").acl("public-read").build();
         GcsService service = GcsServiceFactory.createGcsService();
         GcsFilename name = new GcsFilename("cardexchangemaven.appspot.com", this.id+".jpg");
@@ -446,6 +440,12 @@ public class Card {
                 '}';
     }
 
+    /**
+     * Return an png img in BufferedImage which can be transform with Graphics2D class
+     * @param imageUrl
+     * @return BufferedImage
+     * @throws IOException
+     */
     public static BufferedImage urlImageToBufferedImage (URL imageUrl) throws IOException {
         String tempName = "urlImageToBufferedImage_last_temp.png";
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -464,7 +464,7 @@ public class Card {
         } catch (Exception e) {
             log.severe("Card.java, urlImageToBufferedImage : image format not accepted");
         }
-        // this is a resize transform
+        // this is a dummy transform, which do nothing
         Transform transform = ImagesServiceFactory.makeCrop(0.0, 0.0, 1.0, 1.0);
         // setting the output to PNG
         OutputSettings outputSettings = new OutputSettings(ImagesService.OutputEncoding.PNG);
