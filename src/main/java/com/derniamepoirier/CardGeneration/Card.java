@@ -345,38 +345,40 @@ public class Card {
 //        BufferedImage newImg = ImageIO.read()
 
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        InputStream inputStream = this.pixabayImageURL.openStream();
-        int read;
-        while ((read = inputStream.read()) != -1) {
-            baos.write(read);
-        }
+//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        InputStream inputStream = this.pixabayImageURL.openStream();
+//        int read;
+//        while ((read = inputStream.read()) != -1) {
+//            baos.write(read);
+//        }
+//
+//        ImagesService imagesService = ImagesServiceFactory.getImagesService();
+//        Image image = ImagesServiceFactory.makeImage(baos.toByteArray());
+//        // this throws an exception if data is not image or unsupported format
+//        // you can wrap this in try..catch and act accordingly
+//        image.getFormat();
+//        // this is a resize transform
+//        Transform resize = ImagesServiceFactory.makeResize(350, 400);
+//        // setting the output to PNG
+//        OutputSettings outputSettings = new OutputSettings(ImagesService.OutputEncoding.PNG);
+//        outputSettings.setQuality(100);
+//        // apply dummy transform and output settings
+//        Image newImage = imagesService.applyTransform(resize, image, outputSettings);
+//
+//
+//        // UPLOAD image
+//        GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/png").acl("public-read").build();
+//        GcsService service = GcsServiceFactory.createGcsService();
+//        GcsFilename name = new GcsFilename("cardexchangemaven.appspot.com", this.id+"_temp.png");
+//
+//        ByteBuffer buff =  ByteBuffer.wrap(newImage.getImageData());
+//        service.createOrReplace(name, opt, buff);
+//
+//
+//        URL pngImg = new URL("https://storage.googleapis.com/cardexchangemaven.appspot.com/"+this.id+"_temp.png");
+//        BufferedImage newImg = ImageIO.read(pngImg);
 
-        ImagesService imagesService = ImagesServiceFactory.getImagesService();
-        Image image = ImagesServiceFactory.makeImage(baos.toByteArray());
-        // this throws an exception if data is not image or unsupported format
-        // you can wrap this in try..catch and act accordingly
-        image.getFormat();
-        // this is a resize transform
-        Transform resize = ImagesServiceFactory.makeResize(350, 400);
-        // setting the output to PNG
-        OutputSettings outputSettings = new OutputSettings(ImagesService.OutputEncoding.PNG);
-        outputSettings.setQuality(100);
-        // apply dummy transform and output settings
-        Image newImage = imagesService.applyTransform(resize, image, outputSettings);
-
-
-        // UPLOAD image
-        GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/png").acl("public-read").build();
-        GcsService service = GcsServiceFactory.createGcsService();
-        GcsFilename name = new GcsFilename("cardexchangemaven.appspot.com", this.id+"_temp.png");
-
-        ByteBuffer buff =  ByteBuffer.wrap(newImage.getImageData());
-        service.createOrReplace(name, opt, buff);
-
-
-        URL pngImg = new URL("https://storage.googleapis.com/cardexchangemaven.appspot.com/"+this.id+"_temp.png");
-        BufferedImage newImg = ImageIO.read(pngImg);
+        BufferedImage newImg = Card.urlImageToBufferedImage(this.pixabayImageURL);
 
         cardGraphics.drawImage(newImg, null, 25, 25);
 
@@ -394,11 +396,12 @@ public class Card {
 //
 //        Image image2 = ImagesServiceFactory.makeImage(this.getBytes(bfImg));
 //        // transform image
-        opt = new GcsFileOptions.Builder().mimeType("image/jpeg").acl("public-read").build();
-        name = new GcsFilename("cardexchangemaven.appspot.com", this.id+".jpg");
-        Image image1 = ImagesServiceFactory.makeImage(this.getBytes(bfImg));
+        GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/jpeg").acl("public-read").build();
+        GcsService service = GcsServiceFactory.createGcsService();
+        GcsFilename name = new GcsFilename("cardexchangemaven.appspot.com", this.id+".jpg");
+        Image image = ImagesServiceFactory.makeImage(this.getBytes(bfImg));
 
-        buff =  ByteBuffer.wrap(image1.getImageData());
+        ByteBuffer buff =  ByteBuffer.wrap(image.getImageData());
         service.createOrReplace(name, opt, buff);
     }
 
@@ -443,4 +446,45 @@ public class Card {
                 '}';
     }
 
+    public static BufferedImage urlImageToBufferedImage (URL imageUrl) throws IOException {
+        String tempName = "urlImageToBufferedImage_last_temp.png";
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        InputStream inputStream = imageUrl.openStream();
+        int read;
+        while ((read = inputStream.read()) != -1) {
+            baos.write(read);
+        }
+
+        ImagesService imagesService = ImagesServiceFactory.getImagesService();
+        Image image = ImagesServiceFactory.makeImage(baos.toByteArray());
+        // this throws an exception if data is not image or unsupported format
+        // you can wrap this in try..catch and act accordingly
+        try {
+            image.getFormat();
+        } catch (Exception e) {
+            log.severe("Card.java, urlImageToBufferedImage : image format not accepted");
+        }
+        // this is a resize transform
+        Transform transform = ImagesServiceFactory.makeCrop(0.0, 0.0, 1.0, 1.0);
+        // setting the output to PNG
+        OutputSettings outputSettings = new OutputSettings(ImagesService.OutputEncoding.PNG);
+        outputSettings.setQuality(100);
+        // apply dummy transform and output settings
+        Image newImage = imagesService.applyTransform(transform, image, outputSettings);
+
+
+        // UPLOAD image
+        GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/png").acl("public-read").build();
+        GcsService service = GcsServiceFactory.createGcsService();
+        GcsFilename name = new GcsFilename("cardexchangemaven.appspot.com", tempName);
+
+        ByteBuffer buff =  ByteBuffer.wrap(newImage.getImageData());
+        service.createOrReplace(name, opt, buff);
+
+
+        URL pngImg = new URL("https://storage.googleapis.com/cardexchangemaven.appspot.com/"+tempName);
+        BufferedImage newImg = ImageIO.read(pngImg);
+
+        return newImg;
+    }
 }
