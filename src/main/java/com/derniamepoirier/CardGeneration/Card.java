@@ -3,11 +3,11 @@ package com.derniamepoirier.CardGeneration;
 
 import com.derniamepoirier.Utils.DatastoreGetter;
 import com.google.appengine.api.datastore.*;
-import com.google.appengine.api.images.Image;
-import com.google.appengine.api.images.ImagesServiceFactory;
-import com.google.appengine.tools.cloudstorage.*;
-import com.google.code.appengine.awt.Color;
-import com.google.code.appengine.awt.Font;
+import com.google.appengine.api.images.*;
+import com.google.appengine.tools.cloudstorage.GcsFileOptions;
+import com.google.appengine.tools.cloudstorage.GcsFilename;
+import com.google.appengine.tools.cloudstorage.GcsService;
+import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
 import com.google.code.appengine.awt.Graphics2D;
 import com.google.code.appengine.awt.image.BufferedImage;
 import com.google.code.appengine.imageio.IIOImage;
@@ -30,6 +30,9 @@ import java.util.*;
 import java.util.logging.Logger;
 
 public class Card {
+    private static final int WIDTH = 400;
+    private static final int HEIGHT = 600;
+
     private static final Logger log = Logger.getLogger(Card.class.getName());
 
     private long id;
@@ -335,26 +338,70 @@ public class Card {
 
     // TODO : generate Card image with Graphics2D
     public void generateCardImage() throws IOException {
-        BufferedImage bfImg = new BufferedImage(600, 900, BufferedImage.TYPE_3BYTE_BGR);
-        Graphics2D g2d = bfImg.createGraphics();
-        g2d.setBackground(Color.WHITE);
-        g2d.fillRect(0, 0, 600, 900);
-
-        g2d.setColor(Color.BLUE);
-        g2d.setFont(new Font("TimesRoman", Font.PLAIN, 66));
-        g2d.drawString(String.join(",",this.tags), 300, 100);
+        // Making image
+        BufferedImage bfImg = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_3BYTE_BGR);
+        Graphics2D cardGraphics = bfImg.createGraphics();
+        // Get the image of pixabayImageURL
+//        BufferedImage newImg = ImageIO.read()
 
 
-        Image image = ImagesServiceFactory.makeImage(this.getBytes(bfImg));
+//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        InputStream inputStream = this.pixabayImageURL.openStream();
+//        int read;
+//        while ((read = inputStream.read()) != -1) {
+//            baos.write(read);
+//        }
+//
+//        ImagesService imagesService = ImagesServiceFactory.getImagesService();
+//        Image image = ImagesServiceFactory.makeImage(baos.toByteArray());
+//        // this throws an exception if data is not image or unsupported format
+//        // you can wrap this in try..catch and act accordingly
+//        image.getFormat();
+//        // this is a resize transform
+//        Transform resize = ImagesServiceFactory.makeResize(350, 400);
+//        // setting the output to PNG
+//        OutputSettings outputSettings = new OutputSettings(ImagesService.OutputEncoding.PNG);
+//        outputSettings.setQuality(100);
+//        // apply dummy transform and output settings
+//        Image newImage = imagesService.applyTransform(resize, image, outputSettings);
+//
+//
+//        // UPLOAD image
+//        GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/png").acl("public-read").build();
+//        GcsService service = GcsServiceFactory.createGcsService();
+//        GcsFilename name = new GcsFilename("cardexchangemaven.appspot.com", this.id+"_temp.png");
+//
+//        ByteBuffer buff =  ByteBuffer.wrap(newImage.getImageData());
+//        service.createOrReplace(name, opt, buff);
+//
+//
+//        URL pngImg = new URL("https://storage.googleapis.com/cardexchangemaven.appspot.com/"+this.id+"_temp.png");
+//        BufferedImage newImg = ImageIO.read(pngImg);
 
-        // transform image
-        GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/jpeg")
-                .acl("public-read").build();
+        BufferedImage newImg = Card.urlImageToBufferedImage(this.pixabayImageURL);
+
+        cardGraphics.drawImage(newImg, null, 25, 25);
+
+//        Graphics2D overlayGraphics = bfImgOverlay.createGraphics();
+//        overlayGraphics.drawImage(bfImgOverlay, null, 0, 0);
+
+        // fill the card background
+//        cardGraphics.setColor(Color.getHSBColor(36, 75, 100));
+//        cardGraphics.fillRect(0, 0, WIDTH, HEIGHT);
+//
+//
+//
+//        cardGraphics.setFont(new Font("TimesRoman", Font.PLAIN, 66));
+//        cardGraphics.drawString("Koala, panda", 100, 150);
+//
+//        Image image2 = ImagesServiceFactory.makeImage(this.getBytes(bfImg));
+//        // transform image
+        GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/jpeg").acl("public-read").build();
         GcsService service = GcsServiceFactory.createGcsService();
         GcsFilename name = new GcsFilename("cardexchangemaven.appspot.com", this.id+".jpg");
+        Image image = ImagesServiceFactory.makeImage(this.getBytes(bfImg));
 
         ByteBuffer buff =  ByteBuffer.wrap(image.getImageData());
-
         service.createOrReplace(name, opt, buff);
     }
 
@@ -397,5 +444,47 @@ public class Card {
                 ", pixabayImageURL=" + pixabayImageURL +
                 ", pixabayAuthorName='" + pixabayAuthorName + '\'' +
                 '}';
+    }
+
+    public static BufferedImage urlImageToBufferedImage (URL imageUrl) throws IOException {
+        String tempName = "urlImageToBufferedImage_last_temp.png";
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        InputStream inputStream = imageUrl.openStream();
+        int read;
+        while ((read = inputStream.read()) != -1) {
+            baos.write(read);
+        }
+
+        ImagesService imagesService = ImagesServiceFactory.getImagesService();
+        Image image = ImagesServiceFactory.makeImage(baos.toByteArray());
+        // this throws an exception if data is not image or unsupported format
+        // you can wrap this in try..catch and act accordingly
+        try {
+            image.getFormat();
+        } catch (Exception e) {
+            log.severe("Card.java, urlImageToBufferedImage : image format not accepted");
+        }
+        // this is a resize transform
+        Transform transform = ImagesServiceFactory.makeCrop(0.0, 0.0, 1.0, 1.0);
+        // setting the output to PNG
+        OutputSettings outputSettings = new OutputSettings(ImagesService.OutputEncoding.PNG);
+        outputSettings.setQuality(100);
+        // apply dummy transform and output settings
+        Image newImage = imagesService.applyTransform(transform, image, outputSettings);
+
+
+        // UPLOAD image
+        GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/png").acl("public-read").build();
+        GcsService service = GcsServiceFactory.createGcsService();
+        GcsFilename name = new GcsFilename("cardexchangemaven.appspot.com", tempName);
+
+        ByteBuffer buff =  ByteBuffer.wrap(newImage.getImageData());
+        service.createOrReplace(name, opt, buff);
+
+
+        URL pngImg = new URL("https://storage.googleapis.com/cardexchangemaven.appspot.com/"+tempName);
+        BufferedImage newImg = ImageIO.read(pngImg);
+
+        return newImg;
     }
 }

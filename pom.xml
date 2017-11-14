@@ -141,9 +141,6 @@
 
   </dependencies>
 
-
-    </dependencies>
-
     <repositories>
         <repository>
             <id>jitpack.io</id>
@@ -213,45 +210,11 @@
                 <version>2.20</version>
             </plugin>
 
-        <executions>
-          <execution>
-            <id>copy-resources</id>
-            <!-- here the phase you need -->
-            <phase>validate</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${project.build.directory}/${project.build.finalName}/configuration</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>configuration</directory>
-                  <filtering>false</filtering>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-          <execution>
-            <id>copy-resources2</id>
-            <!-- here the phase you need -->
-            <phase>validate</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${project.build.directory}/${project.build.finalName}/schemas</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>schemas</directory>
-                  <filtering>false</filtering>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
+            <plugin>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.6</version>
+            </plugin>
 
-
-        </executions>
-      </plugin>
 
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -292,6 +255,8 @@
                             </resources>
                         </configuration>
                     </execution>
+
+
                 </executions>
             </plugin>
 
