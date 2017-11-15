@@ -41,7 +41,7 @@ public class CardGenerator {
                     Card c = cardsTemp[i];
                     cards[nbGenerated] = c;
                     //c.generateCardImage();
-                    c.saveToSore();
+                    c.saveToStore();
 
                     nbGenerated++;
                 }

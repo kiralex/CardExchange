@@ -3,14 +3,13 @@ package com.derniamepoirier.CardGeneration;
 
 import com.derniamepoirier.Utils.DatastoreGetter;
 import com.google.appengine.api.datastore.*;
+import com.google.appengine.api.images.Image;
 import com.google.appengine.api.images.*;
 import com.google.appengine.tools.cloudstorage.GcsFileOptions;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
-import com.google.code.appengine.awt.Color;
-import com.google.code.appengine.awt.Font;
-import com.google.code.appengine.awt.Graphics2D;
+import com.google.code.appengine.awt.*;
 import com.google.code.appengine.awt.image.BufferedImage;
 import com.google.code.appengine.imageio.IIOImage;
 import com.google.code.appengine.imageio.ImageIO;
@@ -157,7 +156,7 @@ public class Card {
 
         double maxProba = 0.0;
         for(Entity e : entities){
-            maxProba += ((Double) e.getProperty("probability")).doubleValue();
+            maxProba += (Double) e.getProperty("probability");
         }
 
         Random r = new Random();
@@ -167,9 +166,9 @@ public class Card {
         int index = 0;
         long id = -1;
         while(sum < randomValue && index < entities.size()){
-            sum += ((Double) entities.get(index).getProperty("probability")).doubleValue();
-            index++;
+            sum += (Double) entities.get(index).getProperty("probability");
             id = entities.get(index).getKey().getId();
+            index++;
         }
 
         if(id == -1)
@@ -291,7 +290,7 @@ public class Card {
      * Save an instance of {@link Card} to Store
      * @throws DatastoreGetter.DataStoreNotAvailableException error throwed if {@link DatastoreService} is not available
      */
-    public void saveToSore() throws DatastoreGetter.DataStoreNotAvailableException {
+    public void saveToStore() throws DatastoreGetter.DataStoreNotAvailableException {
         Entity pixabayImage = new Entity("Card", this.id);
         pixabayImage.setProperty("tags", new JSONArray(this.tags).join(","));
         pixabayImage.setProperty("pixabayPageURL", this.pixabayPageURL.toString());
@@ -344,7 +343,11 @@ public class Card {
         BufferedImage bfImg = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_3BYTE_BGR);
         Graphics2D cardGraphics = bfImg.createGraphics();
         // Get the image of pixabayImageURL
-        BufferedImage newImg = Card.urlImageToBufferedImage(this.pixabayImageURL);
+
+        URL url = new URL("https://www.sciencesetavenir.fr/assets/img/2016/04/14/cover-r4x3w1000-57e16a3841d3a-berger-australien.jpg");
+
+        // change url by "this.pixabayImageURL"
+        BufferedImage newImg = Card.urlImageToBufferedImage(url);
 
 
 //         fill the card background
@@ -356,38 +359,40 @@ public class Card {
 
         // Add the rarity square
         cardGraphics.setColor(Color.red);
-        cardGraphics.fillRect(25, 450, 350, 25);
+        Rectangle rect = new Rectangle(25, 450, 350, 25);
+        cardGraphics.fill(rect);
+        cardGraphics.draw(rect);
         // Add the rarity text
         cardGraphics.setColor(Color.WHITE);
-        cardGraphics.setFont(new Font("Purisa", Font.PLAIN, 15));
-        cardGraphics.drawString(""+this.probability+"%", 28, 485);
+        Font ft = new Font("Purisa", Font.PLAIN, 15);
+        Card.drawCenteredString(cardGraphics, ""+this.probability+"%", rect, ft);
 
         // Add the tags square
         cardGraphics.setColor(Color.gray);
-        cardGraphics.fillRect(25, 485, 350, 25);
+        rect = new Rectangle(25, 485, 350, 25);
+        cardGraphics.fill(rect);
+        cardGraphics.draw(rect);
         // Add tags text
         cardGraphics.setColor(Color.WHITE);
-        cardGraphics.setFont(new Font("Courier", Font.PLAIN, 15));
-        for (int i = 0; i < this.tags.length ; i++) {
-            if (i == 0)
-                cardGraphics.drawString(""+this.tags[i], 28, 515);
-            else if (i < this.tags.length -1)
-                cardGraphics.drawString(", "+this.tags[i], 28 + i*40, 515);
-            else
-                cardGraphics.drawString(this.tags[i] + " !-_-!", 28 + i*40, 515);
-        }
+        ft = new Font("Courier", Font.PLAIN, 15);
+        Card.drawCenteredString(cardGraphics, Arrays.toString(this.tags), rect, ft);
+
 
         // Add another square
-        cardGraphics.setColor(Color.gray);
-        cardGraphics.fillRect(25, 540, 350, 25);
+        cardGraphics.setColor(Color.orange);
+        rect = new Rectangle(25, 540, 350, 25);
+        cardGraphics.fill(rect);
+        cardGraphics.draw(rect);
 
         // Add the id square
         cardGraphics.setColor(Color.black);
-        cardGraphics.fill3DRect(325, 575, 50, 15, true);
+        rect = new Rectangle(325, 575, 50, 15);
+        cardGraphics.fill(rect);
+        cardGraphics.draw(rect);
         // Add the id text
         cardGraphics.setColor(Color.WHITE);
-        cardGraphics.setFont(new Font("Georgia", Font.PLAIN, 15));
-        cardGraphics.drawString(""+this.id, 28, 595);
+        ft = new Font("Georgia", Font.PLAIN, 15);
+        Card.drawCenteredString(cardGraphics, ""+this.id, rect, ft);
 
 
         GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/jpeg").acl("public-read").build();
@@ -486,5 +491,25 @@ public class Card {
         BufferedImage newImg = ImageIO.read(pngImg);
 
         return newImg;
+    }
+
+    /**
+     * Draw a String centered in the middle of a y Rectangle at 10px to the begin x of the rectangle.
+     *
+     * @param g The Graphics instance.
+     * @param text The String to draw.
+     * @param rect The Rectangle to center the text in.
+     */
+    public static void drawCenteredString(Graphics g, String text, Rectangle rect, Font font) {
+        // Get the FontMetrics
+        FontMetrics metrics = g.getFontMetrics(font);
+        // Determine the X coordinate for the text
+        int x = rect.x + 10;
+        // Determine the Y coordinate for the text (note we add the ascent, as in java 2d 0 is top of the screen)
+        int y = rect.y + rect.height + metrics.getAscent()/2;
+        // Set the font
+        g.setFont(font);
+        // Draw the String
+        g.drawString(text, x, y);
     }
 }
