@@ -50,7 +50,7 @@
                     <c:choose>
                         <c:when test="${isConnected}">
                             <span class="navbar-text mr-2">Utilisateur : ${userEmail}</span>
-                            <a class="btn align-middle btn-danger" href="${logoutURL}" >Déconnexion"</a>
+                            <a class="btn align-middle btn-danger" href="${logoutURL}" >Déconnexion</a>
                         </c:when>
                         <c:otherwise>
                             <span class="navbar-text mr-2">Non connecté</span>
