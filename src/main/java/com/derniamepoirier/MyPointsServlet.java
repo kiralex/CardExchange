@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
 
-@WebServlet(name = "MyPointsServlet", value="myPoints")
+@WebServlet(name = "MyPointsServlet", value="/myPoints")
 public class MyPointsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         long nbPoints = 0;
