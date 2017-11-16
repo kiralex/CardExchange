@@ -11,4 +11,5 @@
         <include path="/configuration/**" />
         <include path="/schemas/**" />
     </resource-files>
+    <sessions-enabled>true</sessions-enabled>
 </appengine-web-app>

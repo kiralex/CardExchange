@@ -107,6 +107,30 @@ public class Card {
     }
 
     /**
+     * Restore Card from an entity obtained from a Datastore query
+     * @param cardEntity {@link Entity} which contain informations of the card
+     * @return
+     */
+    private static Card restoreFromEntity(Entity cardEntity){
+        if(!cardEntity.getKind().equals("Card"))
+            return null;
+
+        String tags[] = ((String) cardEntity.getProperty("tags")).split(",\\s*");
+        URL pixabayPageURL = null, pixabayImageURL = null, cardImageURL = null;
+        try {
+            pixabayPageURL = new URL((String) cardEntity.getProperty("pixabayPageURL"));
+            pixabayImageURL = new URL((String) cardEntity.getProperty("pixabayImageURL"));
+            cardImageURL = new URL((String) cardEntity.getProperty("cardImageURL"));
+        } catch (MalformedURLException e) { /* will not be throwed */ }
+        String authorName = (String) cardEntity.getProperty("pixabayAuthorName");
+        double probability = ((Double) cardEntity.getProperty("probability")).doubleValue();
+
+        Key k = cardEntity.getKey();
+
+        return new Card(k.getId(), tags, pixabayPageURL, pixabayImageURL, cardImageURL, authorName, probability);
+    }
+
+    /**
      * Restore {@link Card} from store with its id
      * @param id id of the card
      * @return <ul>
@@ -126,18 +150,54 @@ public class Card {
             return null;
         }
 
-        String tags[] = ((String) cardEntity.getProperty("tags")).split(",\\s*");
-        URL pixabayPageURL = null, pixabayImageURL = null, cardImageURL = null;
-        try {
-            pixabayPageURL = new URL((String) cardEntity.getProperty("pixabayPageURL"));
-            pixabayImageURL = new URL((String) cardEntity.getProperty("pixabayImageURL"));
-            cardImageURL = new URL((String) cardEntity.getProperty("cardImageURL"));
-        } catch (MalformedURLException e) { /* will not be throwed */ }
-        String authorName = (String) cardEntity.getProperty("pixabayAuthorName");
-        double probability = ((Double) cardEntity.getProperty("probability")).doubleValue();
+        return Card.restoreFromEntity(cardEntity);
 
 
-        return new Card(id, tags, pixabayPageURL, pixabayImageURL, cardImageURL, authorName, probability);
+    }
+
+    /**
+     * Restore several cards from the store
+     * @param nbPerPage number of {@link Card}s
+     * @param page page offset
+     * @return {@link Card}s Array
+     * @throws DatastoreGetter.DataStoreNotAvailableException
+     */
+    public static Card[] restoreMultipleFromStore(int nbPerPage, int page) throws DatastoreGetter.DataStoreNotAvailableException {
+        DatastoreService datastore = DatastoreGetter.getDatastore();
+
+        Query query = new Query("Card");
+        PreparedQuery preparedQuery = datastore.prepare(query);
+
+        if(nbPerPage <= 0 )
+            nbPerPage = 20;
+        if(page <= 0)
+            page = 1;
+
+        List<Entity> entities;
+
+
+        if(page == 0)
+            entities = preparedQuery.asList(FetchOptions.Builder.withLimit(nbPerPage));
+        else
+            entities = preparedQuery.asList(FetchOptions.Builder.withLimit(nbPerPage).offset((nbPerPage)*(page-1)));
+
+        Card cards[] = new Card[entities.size()];
+        int cpt = 0;
+        for (Entity e: entities) {
+            cards[cpt] = Card.restoreFromEntity(e);
+            cpt++;
+        }
+        return cards;
+    }
+
+    public static int countAllCards() throws DatastoreGetter.DataStoreNotAvailableException {
+        DatastoreService datastore = DatastoreGetter.getDatastore();
+
+        Query query = new Query("Card").setKeysOnly();
+        PreparedQuery preparedQuery = datastore.prepare(query);
+
+
+        return preparedQuery.asList(FetchOptions.Builder.withDefaults()).size();
     }
 
     /**
@@ -303,23 +363,13 @@ public class Card {
         datastore.put(pixabayImage);
     }
 
-
     private byte[] getBytes(BufferedImage image) throws IOException {
         Iterator iter = ImageIO.getImageWritersByFormatName("png");
         ImageWriter writer = (ImageWriter)iter.next();
 
-        if (writer == null) {
-            log.severe("Yolo !!!!!!! RIEN NE VA PLUS !!!!!!!!!");
-            return null;
-        }
-
-
-        log.info("Tout vas bien pour le moment !!!");
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         ImageOutputStream ios = ImageIO.createImageOutputStream(bytes);
         writer.setOutput(ios);
-
-        log.info("Tout vas bien pour le moment 2 _________");
 
         ImageWriteParam param = writer.getDefaultWriteParam();
 
@@ -394,6 +444,57 @@ public class Card {
         ft = new Font("Georgia", Font.PLAIN, 15);
         Card.drawCenteredString(cardGraphics, ""+this.id, rect, ft);
 
+
+    // TODO : generate Card image with Graphics2D
+    public void generateCardImage() throws IOException {
+        // Making image
+        BufferedImage bfImg = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_3BYTE_BGR);
+        Graphics2D cardGraphics = bfImg.createGraphics();
+        // Get the image of pixabayImageURL
+        BufferedImage newImg = Card.urlImageToBufferedImage(this.pixabayImageURL);
+
+
+//         fill the card background
+        cardGraphics.setColor(Color.getHSBColor(36, 75, 99));
+        cardGraphics.fillRect(0, 0, WIDTH, HEIGHT);
+
+        // Add image on the top of the card and resize it
+        cardGraphics.drawImage(newImg, 25, 25, 350, 400, null);
+
+        // Add the rarity square
+        cardGraphics.setColor(Color.red);
+        cardGraphics.fillRect(25, 450, 350, 25);
+        // Add the rarity text
+        cardGraphics.setColor(Color.WHITE);
+        cardGraphics.setFont(new Font("Purisa", Font.PLAIN, 15));
+        cardGraphics.drawString(""+this.probability+"%", 28, 485);
+
+        // Add the tags square
+        cardGraphics.setColor(Color.gray);
+        cardGraphics.fillRect(25, 485, 350, 25);
+        // Add tags text
+        cardGraphics.setColor(Color.WHITE);
+        cardGraphics.setFont(new Font("Courier", Font.PLAIN, 15));
+        for (int i = 0; i < this.tags.length ; i++) {
+            if (i == 0)
+                cardGraphics.drawString(""+this.tags[i], 28, 515);
+            else if (i < this.tags.length -1)
+                cardGraphics.drawString(", "+this.tags[i], 28 + i*40, 515);
+            else
+                cardGraphics.drawString(this.tags[i] + " !-_-!", 28 + i*40, 515);
+        }
+
+        // Add another square
+        cardGraphics.setColor(Color.gray);
+        cardGraphics.fillRect(25, 540, 350, 25);
+
+        // Add the id square
+        cardGraphics.setColor(Color.black);
+        cardGraphics.fill3DRect(325, 575, 50, 15, true);
+        // Add the id text
+        cardGraphics.setColor(Color.WHITE);
+        cardGraphics.setFont(new Font("Georgia", Font.PLAIN, 15));
+        cardGraphics.drawString(""+this.id, 28, 595);
 
         GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/jpeg").acl("public-read").build();
         GcsService service = GcsServiceFactory.createGcsService();

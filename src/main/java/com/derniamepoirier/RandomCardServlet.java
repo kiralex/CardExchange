@@ -20,7 +20,7 @@ public class RandomCardServlet extends HttpServlet {
             cd.generateCardImage();
             request.setAttribute("card", cd);
 
-            RequestDispatcher rd = request.getRequestDispatcher("index3.jsp");
+            RequestDispatcher rd = request.getRequestDispatcher("index.jsp");
             rd.forward(request,response);
         } catch (DatastoreGetter.DataStoreNotAvailableException e) {
             e.printStackTrace();
