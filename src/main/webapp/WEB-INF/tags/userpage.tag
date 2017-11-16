@@ -38,6 +38,9 @@
                     <li class="nav-item active">
                         <a class="nav-link" href="allCards">Toutes les cartes</a>
                     </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="myPoints">Mes points</a>
+                    </li>
                 </ul>
 
                 <form class="form-inline mr-sm-3">

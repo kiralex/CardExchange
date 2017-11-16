@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 
 public class UserManagment {
     private static final Logger log = Logger.getLogger(UserManagment.class.getName());
-    private static final int NB_POINTS_PER_PERIOD = 20;
+    private static final int NB_POINTS_PER_PERIOD = 30;
 
     private UserManagment(){}
 
@@ -23,11 +23,11 @@ public class UserManagment {
         }
     }
 
-    public static UserService getUserService(){
+    private static UserService getUserService(){
         return UserServiceFactory.getUserService();
     }
 
-    public static Entity firstConnection() throws UserNotLoggedInException, DatastoreGetter.DataStoreNotAvailableException {
+    private static Entity intializeUser() throws UserNotLoggedInException, DatastoreGetter.DataStoreNotAvailableException {
         UserService userService = UserManagment.getUserService();
 
         if(!userService.isUserLoggedIn())
@@ -47,7 +47,7 @@ public class UserManagment {
     }
 
     public static boolean earnPoints() throws UserNotLoggedInException, DatastoreGetter.DataStoreNotAvailableException {
-        if(!UserManagment.canDrawEarnPoints())
+        if(!UserManagment.canEarnPoints())
             return false;
 
         Entity entity = UserManagment.getUserInfos();
@@ -66,7 +66,7 @@ public class UserManagment {
         return true;
     }
 
-    public static Entity getUserInfos() throws UserNotLoggedInException, DatastoreGetter.DataStoreNotAvailableException {
+    private static Entity getUserInfos() throws UserNotLoggedInException, DatastoreGetter.DataStoreNotAvailableException {
         UserService userService = UserManagment.getUserService();
 
         if(!userService.isUserLoggedIn())
@@ -84,14 +84,22 @@ public class UserManagment {
         try {
             entity = datastore.get(key);
         } catch (EntityNotFoundException e) {
-            return firstConnection();
+            return intializeUser();
         }
 
         return entity;
     }
 
+    public static long getNbPoints() throws UserNotLoggedInException, DatastoreGetter.DataStoreNotAvailableException {
+        return (Long) getUserInfos().getProperty("nbPoints");
+    }
 
-    public static boolean canDrawEarnPoints() throws UserNotLoggedInException, DatastoreGetter.DataStoreNotAvailableException {
+    public static Date getNextPointEarnDate() throws UserNotLoggedInException, DatastoreGetter.DataStoreNotAvailableException {
+        return   DateUtil.deserializeDate((String)getUserInfos().getProperty("nextPointEarnDate"));
+    }
+
+
+    public static boolean canEarnPoints() throws UserNotLoggedInException, DatastoreGetter.DataStoreNotAvailableException {
         Entity entity = getUserInfos();
 
         Date nextPointEarnDate = DateUtil.deserializeDate((String)entity.getProperty("nextPointEarnDate"));
