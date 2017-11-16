@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 public class UserManagment {
     private static final Logger log = Logger.getLogger(UserManagment.class.getName());
     public static final int NB_POINTS_PER_PERIOD = 30;
+    public static final int NB_POINTS_PER_CARD = 10;
 
     private UserManagment(){}
 
@@ -29,8 +30,14 @@ public class UserManagment {
         }
     }
 
+    public static class NotEnoughPointsToSpendException extends Exception{
+        public NotEnoughPointsToSpendException(String str) {
+            super(str);
+        }
+    }
 
-    private static UserService getUserService(){
+
+    public static UserService getUserService(){
         return UserServiceFactory.getUserService();
     }
 
@@ -59,7 +66,6 @@ public class UserManagment {
 
         Entity entity = UserManagment.getUserInfos();
 
-
         Calendar c = GregorianCalendar.getInstance();
         c.add(Calendar.HOUR, 3);
         Date newDate = c.getTime();
@@ -69,6 +75,20 @@ public class UserManagment {
 
         DatastoreService datastore = DatastoreGetter.getDatastore();
         datastore.put(entity);
+    }
+
+    public static void spendPoints() throws UserNotLoggedInException, DatastoreGetter.DataStoreNotAvailableException, NotEnoughPointsToSpendException {
+        Entity entity = UserManagment.getUserInfos();
+        DatastoreService datastore = DatastoreGetter.getDatastore();
+
+        long oldPointsTotal = (Long) entity.getProperty("nbPoints");
+        if(oldPointsTotal < UserManagment.NB_POINTS_PER_CARD)
+            throw new NotEnoughPointsToSpendException("Pas assez de points pour acheter une carte");
+
+        long newPointsTotal = oldPointsTotal - UserManagment.NB_POINTS_PER_CARD;
+        entity.setProperty("nbPoints", newPointsTotal);
+        datastore.put(entity);
+
     }
 
     private static Entity getUserInfos() throws UserNotLoggedInException, DatastoreGetter.DataStoreNotAvailableException {
