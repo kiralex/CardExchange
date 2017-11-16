@@ -7,4 +7,9 @@
     <system-properties>
         <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
     </system-properties>
+    <resource-files>
+        <include path="/configuration/**" />
+        <include path="/schemas/**" />
+    </resource-files>
+    <sessions-enabled>true</sessions-enabled>
 </appengine-web-app>

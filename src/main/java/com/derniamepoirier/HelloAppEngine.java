@@ -62,17 +62,17 @@ public class HelloAppEngine extends HttpServlet {
 //    ByteBuffer buff =  ByteBuffer.wrap(image.getImageData());
 //    service.createOrReplace(name, opt, buff);
 
-    PixabayFetcher.PixabayAPIOptions options[] = new PixabayFetcher.PixabayAPIOptions[]{PixabayFetcher.ImageType.ILLUSTRATION, PixabayFetcher.Order.LATEST};
+    PixabayFetcher.PixabayAPIOptions options[] = new PixabayFetcher.PixabayAPIOptions[]{PixabayFetcher.ImageType.PHOTO, PixabayFetcher.Order.POPULAR, PixabayFetcher.Orientation.VERTICAL};
 
     try {
-      Card cards[] = CardGenerator.generate("tortue", options, 1000);
+      Card cards[] = CardGenerator.generate("poney", options, 10);
 //
 //      for (Card c: cards ) {
 //        response.getWriter().println(c);
 //      }
       response.getWriter().println("=======================");
 
-      response.getWriter().println(Card.drawFromStore());
+      //response.getWriter().println(Card.drawFromStore());
     } catch (DatastoreGetter.DataStoreNotAvailableException e) {
       e.printStackTrace();
     } catch (PixabayIncorrectParameterException e) {

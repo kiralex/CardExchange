@@ -1,7 +1,22 @@
 package com.derniamepoirier.CardGeneration;
 
+
 import com.derniamepoirier.Utils.DatastoreGetter;
 import com.google.appengine.api.datastore.*;
+import com.google.appengine.api.images.*;
+import com.google.appengine.tools.cloudstorage.GcsFileOptions;
+import com.google.appengine.tools.cloudstorage.GcsFilename;
+import com.google.appengine.tools.cloudstorage.GcsService;
+import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
+import com.google.code.appengine.awt.Color;
+import com.google.code.appengine.awt.Font;
+import com.google.code.appengine.awt.Graphics2D;
+import com.google.code.appengine.awt.image.BufferedImage;
+import com.google.code.appengine.imageio.IIOImage;
+import com.google.code.appengine.imageio.ImageIO;
+import com.google.code.appengine.imageio.ImageWriteParam;
+import com.google.code.appengine.imageio.ImageWriter;
+import com.google.code.appengine.imageio.stream.ImageOutputStream;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
@@ -9,26 +24,27 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.nio.ByteBuffer;
+import java.util.*;
 import java.util.logging.Logger;
 
-
 public class Card {
+    private static final int WIDTH = 400;
+    private static final int HEIGHT = 600;
+
     private static final Logger log = Logger.getLogger(Card.class.getName());
 
     private long id;
     private String tags[];
     private URL pixabayPageURL;
+
+    // URL of the pixabay image
     private URL pixabayImageURL;
+
+    // URL of the card
     private URL cardImageURL;
     private String pixabayAuthorName;
     private double probability;
@@ -92,6 +108,30 @@ public class Card {
     }
 
     /**
+     * Restore Card from an entity obtained from a Datastore query
+     * @param cardEntity {@link Entity} which contain informations of the card
+     * @return
+     */
+    private static Card restoreFromEntity(Entity cardEntity){
+        if(!cardEntity.getKind().equals("Card"))
+            return null;
+
+        String tags[] = ((String) cardEntity.getProperty("tags")).split(",\\s*");
+        URL pixabayPageURL = null, pixabayImageURL = null, cardImageURL = null;
+        try {
+            pixabayPageURL = new URL((String) cardEntity.getProperty("pixabayPageURL"));
+            pixabayImageURL = new URL((String) cardEntity.getProperty("pixabayImageURL"));
+            cardImageURL = new URL((String) cardEntity.getProperty("cardImageURL"));
+        } catch (MalformedURLException e) { /* will not be throwed */ }
+        String authorName = (String) cardEntity.getProperty("pixabayAuthorName");
+        double probability = ((Double) cardEntity.getProperty("probability")).doubleValue();
+
+        Key k = cardEntity.getKey();
+
+        return new Card(k.getId(), tags, pixabayPageURL, pixabayImageURL, cardImageURL, authorName, probability);
+    }
+
+    /**
      * Restore {@link Card} from store with its id
      * @param id id of the card
      * @return <ul>
@@ -111,18 +151,54 @@ public class Card {
             return null;
         }
 
-        String tags[] = ((String) cardEntity.getProperty("tags")).split(",\\s*");
-        URL pixabayPageURL = null, pixabayImageURL = null, cardImageURL = null;
-        try {
-            pixabayPageURL = new URL((String) cardEntity.getProperty("pixabayPageURL"));
-            pixabayImageURL = new URL((String) cardEntity.getProperty("pixabayImageURL"));
-            cardImageURL = new URL((String) cardEntity.getProperty("cardImageURL"));
-        } catch (MalformedURLException e) { /* will not be throwed */ }
-        String authorName = (String) cardEntity.getProperty("pixabayAuthorName");
-        double probability = ((Double) cardEntity.getProperty("probability")).doubleValue();
+        return Card.restoreFromEntity(cardEntity);
 
 
-        return new Card(id, tags, pixabayPageURL, pixabayImageURL, cardImageURL, authorName, probability);
+    }
+
+    /**
+     * Restore several cards from the store
+     * @param nbPerPage number of {@link Card}s
+     * @param page page offset
+     * @return {@link Card}s Array
+     * @throws DatastoreGetter.DataStoreNotAvailableException
+     */
+    public static Card[] restoreMultipleFromStore(int nbPerPage, int page) throws DatastoreGetter.DataStoreNotAvailableException {
+        DatastoreService datastore = DatastoreGetter.getDatastore();
+
+        Query query = new Query("Card");
+        PreparedQuery preparedQuery = datastore.prepare(query);
+
+        if(nbPerPage <= 0 )
+            nbPerPage = 20;
+        if(page <= 0)
+            page = 1;
+
+        List<Entity> entities;
+
+
+        if(page == 0)
+            entities = preparedQuery.asList(FetchOptions.Builder.withLimit(nbPerPage));
+        else
+            entities = preparedQuery.asList(FetchOptions.Builder.withLimit(nbPerPage).offset((nbPerPage)*(page-1)));
+
+        Card cards[] = new Card[entities.size()];
+        int cpt = 0;
+        for (Entity e: entities) {
+            cards[cpt] = Card.restoreFromEntity(e);
+            cpt++;
+        }
+        return cards;
+    }
+
+    public static int countAllCards() throws DatastoreGetter.DataStoreNotAvailableException {
+        DatastoreService datastore = DatastoreGetter.getDatastore();
+
+        Query query = new Query("Card").setKeysOnly();
+        PreparedQuery preparedQuery = datastore.prepare(query);
+
+
+        return preparedQuery.asList(FetchOptions.Builder.withDefaults()).size();
     }
 
     /**
@@ -150,7 +226,7 @@ public class Card {
         double sum = 0;
         int index = 0;
         long id = -1;
-        while(sum < randomValue){
+        while(sum < randomValue && index < entities.size()){
             sum += ((Double) entities.get(index).getProperty("probability")).doubleValue();
             index++;
             id = entities.get(index).getKey().getId();
@@ -288,9 +364,90 @@ public class Card {
         datastore.put(pixabayImage);
     }
 
-    // TODO : generate Card image with Graphics2D
-    public void generateCardImage(){
 
+    private byte[] getBytes(BufferedImage image) throws IOException {
+        Iterator iter = ImageIO.getImageWritersByFormatName("png");
+        ImageWriter writer = (ImageWriter)iter.next();
+
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        ImageOutputStream ios = ImageIO.createImageOutputStream(bytes);
+        writer.setOutput(ios);
+
+        ImageWriteParam param = writer.getDefaultWriteParam();
+
+        if (param.canWriteCompressed()) {
+            // NOTE: Any method named [set|get]Compression.* throws UnsupportedOperationException if false
+            param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+            param.setCompressionQuality(0.9f);
+        }
+
+
+        IIOImage iioImage = new IIOImage(image, null, null);
+        writer.write(null, iioImage, param);
+        ios.close();
+        writer.dispose();
+        return bytes.toByteArray();
+    }
+
+    // TODO : generate Card image with Graphics2D
+    public void generateCardImage() throws IOException {
+        // Making image
+        BufferedImage bfImg = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_3BYTE_BGR);
+        Graphics2D cardGraphics = bfImg.createGraphics();
+        // Get the image of pixabayImageURL
+        BufferedImage newImg = Card.urlImageToBufferedImage(this.pixabayImageURL);
+
+
+//         fill the card background
+        cardGraphics.setColor(Color.getHSBColor(36, 75, 99));
+        cardGraphics.fillRect(0, 0, WIDTH, HEIGHT);
+
+        // Add image on the top of the card and resize it
+        cardGraphics.drawImage(newImg, 25, 25, 350, 400, null);
+
+        // Add the rarity square
+        cardGraphics.setColor(Color.red);
+        cardGraphics.fillRect(25, 450, 350, 25);
+        // Add the rarity text
+        cardGraphics.setColor(Color.WHITE);
+        cardGraphics.setFont(new Font("Purisa", Font.PLAIN, 15));
+        cardGraphics.drawString(""+this.probability+"%", 28, 485);
+
+        // Add the tags square
+        cardGraphics.setColor(Color.gray);
+        cardGraphics.fillRect(25, 485, 350, 25);
+        // Add tags text
+        cardGraphics.setColor(Color.WHITE);
+        cardGraphics.setFont(new Font("Courier", Font.PLAIN, 15));
+        for (int i = 0; i < this.tags.length ; i++) {
+            if (i == 0)
+                cardGraphics.drawString(""+this.tags[i], 28, 515);
+            else if (i < this.tags.length -1)
+                cardGraphics.drawString(", "+this.tags[i], 28 + i*40, 515);
+            else
+                cardGraphics.drawString(this.tags[i] + " !-_-!", 28 + i*40, 515);
+        }
+
+        // Add another square
+        cardGraphics.setColor(Color.gray);
+        cardGraphics.fillRect(25, 540, 350, 25);
+
+        // Add the id square
+        cardGraphics.setColor(Color.black);
+        cardGraphics.fill3DRect(325, 575, 50, 15, true);
+        // Add the id text
+        cardGraphics.setColor(Color.WHITE);
+        cardGraphics.setFont(new Font("Georgia", Font.PLAIN, 15));
+        cardGraphics.drawString(""+this.id, 28, 595);
+
+
+        GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/jpeg").acl("public-read").build();
+        GcsService service = GcsServiceFactory.createGcsService();
+        GcsFilename name = new GcsFilename("cardexchangemaven.appspot.com", this.id+".jpg");
+        Image image = ImagesServiceFactory.makeImage(this.getBytes(bfImg));
+
+        ByteBuffer buff =  ByteBuffer.wrap(image.getImageData());
+        service.createOrReplace(name, opt, buff);
     }
 
     @Override
@@ -332,5 +489,53 @@ public class Card {
                 ", pixabayImageURL=" + pixabayImageURL +
                 ", pixabayAuthorName='" + pixabayAuthorName + '\'' +
                 '}';
+    }
+
+    /**
+     * Return an png img in BufferedImage which can be transform with Graphics2D class
+     * @param imageUrl
+     * @return BufferedImage
+     * @throws IOException
+     */
+    public static BufferedImage urlImageToBufferedImage (URL imageUrl) throws IOException {
+        String tempName = "urlImageToBufferedImage_last_temp.png";
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        InputStream inputStream = imageUrl.openStream();
+        int read;
+        while ((read = inputStream.read()) != -1) {
+            baos.write(read);
+        }
+
+        ImagesService imagesService = ImagesServiceFactory.getImagesService();
+        Image image = ImagesServiceFactory.makeImage(baos.toByteArray());
+        // this throws an exception if data is not image or unsupported format
+        // you can wrap this in try..catch and act accordingly
+        try {
+            image.getFormat();
+        } catch (Exception e) {
+            log.severe("Card.java, urlImageToBufferedImage : image format not accepted");
+        }
+        // this is a dummy transform, which do nothing
+        Transform transform = ImagesServiceFactory.makeCrop(0.0, 0.0, 1.0, 1.0);
+        // setting the output to PNG
+        OutputSettings outputSettings = new OutputSettings(ImagesService.OutputEncoding.PNG);
+        outputSettings.setQuality(100);
+        // apply dummy transform and output settings
+        Image newImage = imagesService.applyTransform(transform, image, outputSettings);
+
+
+        // UPLOAD image
+        GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/png").acl("public-read").build();
+        GcsService service = GcsServiceFactory.createGcsService();
+        GcsFilename name = new GcsFilename("cardexchangemaven.appspot.com", tempName);
+
+        ByteBuffer buff =  ByteBuffer.wrap(newImage.getImageData());
+        service.createOrReplace(name, opt, buff);
+
+
+        URL pngImg = new URL("https://storage.googleapis.com/cardexchangemaven.appspot.com/"+tempName);
+        BufferedImage newImg = ImageIO.read(pngImg);
+
+        return newImg;
     }
 }
