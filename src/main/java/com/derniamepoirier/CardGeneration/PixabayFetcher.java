@@ -168,7 +168,7 @@ public class PixabayFetcher {
 
         // Checking parametters
         if(PIXABAY_API_KEY == null || PIXABAY_API_KEY.isEmpty())
-            throw new PixabayApiKeyMissingException("Pixabay API Key is misssing in environment variables");
+            throw new PixabayApiKeyMissingException("Pixabay API Key is missing in environment variables");
 
         if(page <= 0)
             throw new PixabayIncorrectParameterException("Page number is incorrect");

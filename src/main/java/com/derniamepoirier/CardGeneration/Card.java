@@ -3,14 +3,14 @@ package com.derniamepoirier.CardGeneration;
 
 import com.derniamepoirier.Utils.DatastoreGetter;
 import com.google.appengine.api.datastore.*;
+import com.google.appengine.api.images.Image;
 import com.google.appengine.api.images.*;
 import com.google.appengine.tools.cloudstorage.GcsFileOptions;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
-import com.google.code.appengine.awt.Color;
-import com.google.code.appengine.awt.Font;
-import com.google.code.appengine.awt.Graphics2D;
+import com.google.code.appengine.awt.*;
+import com.google.code.appengine.awt.geom.RoundRectangle2D;
 import com.google.code.appengine.awt.image.BufferedImage;
 import com.google.code.appengine.imageio.IIOImage;
 import com.google.code.appengine.imageio.ImageIO;
@@ -28,8 +28,10 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.text.Normalizer;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 public class Card {
     private static final int WIDTH = 400;
@@ -217,7 +219,7 @@ public class Card {
 
         double maxProba = 0.0;
         for(Entity e : entities){
-            maxProba += ((Double) e.getProperty("probability")).doubleValue();
+            maxProba += (Double) e.getProperty("probability");
         }
 
         Random r = new Random();
@@ -227,9 +229,9 @@ public class Card {
         int index = 0;
         long id = -1;
         while(sum < randomValue && index < entities.size()){
-            sum += ((Double) entities.get(index).getProperty("probability")).doubleValue();
-            index++;
+            sum += (Double) entities.get(index).getProperty("probability");
             id = entities.get(index).getKey().getId();
+            index++;
         }
 
         if(id == -1)
@@ -351,7 +353,7 @@ public class Card {
      * Save an instance of {@link Card} to Store
      * @throws DatastoreGetter.DataStoreNotAvailableException error throwed if {@link DatastoreService} is not available
      */
-    public void saveToSore() throws DatastoreGetter.DataStoreNotAvailableException {
+    public void saveToStore() throws DatastoreGetter.DataStoreNotAvailableException {
         Entity pixabayImage = new Entity("Card", this.id);
         pixabayImage.setProperty("tags", new JSONArray(this.tags).join(","));
         pixabayImage.setProperty("pixabayPageURL", this.pixabayPageURL.toString());
@@ -363,7 +365,6 @@ public class Card {
         DatastoreService datastore = DatastoreGetter.getDatastore();
         datastore.put(pixabayImage);
     }
-
 
     private byte[] getBytes(BufferedImage image) throws IOException {
         Iterator iter = ImageIO.getImageWritersByFormatName("png");
@@ -394,53 +395,36 @@ public class Card {
         // Making image
         BufferedImage bfImg = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_3BYTE_BGR);
         Graphics2D cardGraphics = bfImg.createGraphics();
-        // Get the image of pixabayImageURL
-        BufferedImage newImg = Card.urlImageToBufferedImage(this.pixabayImageURL);
 
 
-//         fill the card background
-        cardGraphics.setColor(Color.getHSBColor(36, 75, 99));
-        cardGraphics.fillRect(0, 0, WIDTH, HEIGHT);
+        Color colorBgText = new Color(254, 212, 149);
+        Color colorBgCard = new Color(164, 107, 20);
+        Font fontText = new Font("Mona Lisa Solid ITC TT", Font.PLAIN, 15);
+        Font fontSquareId = new Font("Impact", Font.PLAIN, 15);
 
-        // Add image on the top of the card and resize it
-        cardGraphics.drawImage(newImg, 25, 25, 350, 400, null);
 
-        // Add the rarity square
-        cardGraphics.setColor(Color.red);
-        cardGraphics.fillRect(25, 450, 350, 25);
-        // Add the rarity text
-        cardGraphics.setColor(Color.WHITE);
-        cardGraphics.setFont(new Font("Purisa", Font.PLAIN, 15));
-        cardGraphics.drawString(""+this.probability+"%", 28, 485);
 
-        // Add the tags square
-        cardGraphics.setColor(Color.gray);
-        cardGraphics.fillRect(25, 485, 350, 25);
-        // Add tags text
-        cardGraphics.setColor(Color.WHITE);
-        cardGraphics.setFont(new Font("Courier", Font.PLAIN, 15));
-        for (int i = 0; i < this.tags.length ; i++) {
-            if (i == 0)
-                cardGraphics.drawString(""+this.tags[i], 28, 515);
-            else if (i < this.tags.length -1)
-                cardGraphics.drawString(", "+this.tags[i], 28 + i*40, 515);
-            else
-                cardGraphics.drawString(this.tags[i] + " !-_-!", 28 + i*40, 515);
-        }
 
-        // Add another square
-        cardGraphics.setColor(Color.gray);
-        cardGraphics.fillRect(25, 540, 350, 25);
+        this.addImageAndStarToCard (cardGraphics, colorBgCard);
 
-        // Add the id square
-        cardGraphics.setColor(Color.black);
-        cardGraphics.fill3DRect(325, 575, 50, 15, true);
+        // Add the rarity text and square
+        RoundRectangle2D rect = new RoundRectangle2D.Float(25, 430, 150, 25, 25, 25);
+        addSquareAndTextIntoGraphics2D(cardGraphics,"rarete : "+ String.format("%.2f", this.probability) +"%", rect,colorBgText, Color.BLACK, fontText);
+
+        // Add the tags square and text
+        rect = new RoundRectangle2D.Float(25, 460, 350, 25, 25, 25);
+        addSquareAndTextIntoGraphics2D(cardGraphics, "Types : " + deAccentStringArray(this.tags), rect,colorBgText, Color.BLACK, fontText);
+
+        // Add Leyenda square and text
+        rect = new RoundRectangle2D.Float(25, 500, 350, 70, 25, 25);
+        addSquareAndTextIntoGraphics2D(cardGraphics, "Legende : ", rect,colorBgText, Color.BLACK, fontText);
+
         // Add the id text
-        cardGraphics.setColor(Color.WHITE);
-        cardGraphics.setFont(new Font("Georgia", Font.PLAIN, 15));
-        cardGraphics.drawString(""+this.id, 28, 595);
+        rect = new RoundRectangle2D.Float(275, 570, 125, 30, 25, 25);
+        addSquareAndTextIntoGraphics2D(cardGraphics, "id : " + this.id, rect,colorBgCard, Color.WHITE, fontSquareId);
 
 
+        // Save into GoogleCloudStorage
         GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/jpeg").acl("public-read").build();
         GcsService service = GcsServiceFactory.createGcsService();
         GcsFilename name = new GcsFilename("cardexchangemaven.appspot.com", this.id+".jpg");
@@ -538,4 +522,136 @@ public class Card {
 
         return newImg;
     }
+
+    /**
+     * Draw a String centered in the middle of a y Rectangle at 15px to the begin x of the rectangle.
+     *
+     * @param g The Graphics instance.
+     * @param text The String to draw.
+     * @param rect The Rectangle to center the text in.
+     */
+    public static void drawCenteredString(Graphics g, String text, Rectangle rect, Font font) {
+        // Get the FontMetrics
+        FontMetrics metrics = g.getFontMetrics(font);
+        // Determine the X coordinate for the text
+        int x = rect.x + 15;
+        // Determine the Y coordinate for the text (note we add the ascent, as in java 2d 0 is top of the screen)
+        int y = rect.y + rect.height + metrics.getAscent()/2;
+        // Set the font
+        g.setFont(font);
+        // Draw the String
+        g.drawString(text, x, y);
+    }
+
+    /**
+     * Draw a String centered in the middle of a y roundedRectangle at 15px to the begin x of the rectangle.
+     *
+     * @param g The Graphics instance.
+     * @param text The String to draw.
+     * @param rect The roundedRectangle to center the text in.
+     */
+    public static void drawCenteredString(Graphics g, String text, RoundRectangle2D rect, Font font) {
+        // Get the FontMetrics
+        FontMetrics metrics = g.getFontMetrics(font);
+        // Determine the X coordinate for the text
+        int x = (int) rect.getX() + 15;
+        // Determine the Y coordinate for the text (note we add the ascent, as in java 2d 0 is top of the screen)
+        int y = (int) (rect.getY() + rect.getHeight() + metrics.getAscent()/2);
+        // Set the font
+        g.setFont(font);
+        // Draw the String
+        g.drawString(text, x, y);
+    }
+
+    public static String deAccentStringArray (String[] strArr) {
+        String res = "";
+
+        for (String str: strArr) {
+            res += deAccent(str);
+        }
+
+        return res;
+    }
+
+    public static String deAccent(String str) {
+        String nfdNormalizedString = Normalizer.normalize(str, Normalizer.Form.NFD);
+        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+        return pattern.matcher(nfdNormalizedString).replaceAll("");
+    }
+
+    /**
+     * Add a rounded corner to a picture
+     * @param image
+     * @param cornerRadius in pixel
+     * @return
+     */
+    public static BufferedImage makeRoundedCornerImage(BufferedImage image, int cornerRadius) {
+        int w = image.getWidth();
+        int h = image.getHeight();
+        BufferedImage output = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+
+        Graphics2D g2 = output.createGraphics();
+
+        // This is what we want, but it only does hard-clipping, i.e. aliasing
+        // g2.setClip(new RoundRectangle2D ...)
+
+        // so instead fake soft-clipping by first drawing the desired clip shape
+        // in fully opaque white with antialiasing enabled...
+        g2.setComposite(AlphaComposite.Src);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setColor(Color.WHITE);
+        g2.fill(new RoundRectangle2D.Float(0, 0, w, h, cornerRadius, cornerRadius));
+
+        // ... then compositing the image on top,
+        // using the white shape from above as alpha source
+        g2.setComposite(AlphaComposite.SrcAtop);
+        g2.drawImage(image, 0, 0, null);
+
+        g2.dispose();
+
+        return output;
+    }
+
+    /**
+     * Add a square and a text y centering into a graphics2D
+     * @param g
+     * @param text to draw
+     * @param rect rectangle to draw
+     * @param colorBgText color of the rectangle
+     * @param colorText color of the text
+     * @param fontText font of the text
+     */
+    public static void addSquareAndTextIntoGraphics2D(Graphics2D g, String text, RoundRectangle2D rect, Color colorBgText, Color colorText, Font fontText) {
+        g.setColor(colorBgText);
+        g.draw(rect);
+        g.fill(rect);
+        g.setColor(colorText);
+        Card.drawCenteredString(g, text, rect, fontText);
+
+    }
+
+
+    public void addImageAndStarToCard (Graphics2D g, Color colorBgCard) throws IOException {
+        // Get the image of pixabayImageURL
+        BufferedImage newImg = Card.urlImageToBufferedImage(this.pixabayImageURL);
+        newImg = makeRoundedCornerImage(newImg, 50);
+        //        fill the card background
+        g.setColor(colorBgCard);
+        g.fillRect(0, 0, WIDTH, HEIGHT);
+        // Add image on the top of the card and resize it
+        g.drawImage(newImg, 25, 25, 350, 400, null);
+
+
+
+        // Get the star point on top right of the card
+        BufferedImage starImg = ImageIO.read(new URL("https://storage.googleapis.com/cardexchangemaven.appspot.com/_star_point.png"));
+
+        int nbStar = Math.toIntExact(Math.round(10 * this.probability));
+
+        // Add the star to the image
+        for (int i = 0; i < nbStar; i++)
+            g.drawImage(starImg, 350 - (22 * i), 2, 20, 20, null);
+
+    }
+
 }
