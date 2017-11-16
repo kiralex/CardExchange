@@ -23,6 +23,13 @@ public class MyPointsServlet extends HttpServlet {
             nbPoints = UserManagment.getNbPoints();
             nextPointEarnDate = UserManagment.getNextPointEarnDate();
             canEarnPoints = UserManagment.canEarnPoints();
+
+            request.setAttribute("nbPoints", nbPoints);
+            request.setAttribute("nextPointEarnDate", nextPointEarnDate.getTime());
+            request.setAttribute("canEarnPoints", true);
+            RequestDispatcher rd = request.getRequestDispatcher("myPoints.jsp");
+            rd.forward(request,response);
+
         } catch (UserManagment.UserNotLoggedInException e) {
             request.setAttribute("errorMessage", "Vous devez être connecté pour connaître votre nombre de points");
             RequestDispatcher rd = request.getRequestDispatcher("error.jsp");
@@ -33,10 +40,6 @@ public class MyPointsServlet extends HttpServlet {
             rd.forward(request,response);
         }
 
-        request.setAttribute("nbPoints", nbPoints);
-        request.setAttribute("nextPointEarnDate", nextPointEarnDate.getTime());
-        request.setAttribute("canEarnPoints", true);
-        RequestDispatcher rd = request.getRequestDispatcher("myPoints.jsp");
-        rd.forward(request,response);
+
     }
 }
