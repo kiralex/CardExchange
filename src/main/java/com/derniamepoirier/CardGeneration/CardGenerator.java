@@ -34,7 +34,7 @@ public class CardGenerator {
         while(!pageOutOfRange && nbGenerated < nbCard) {
             JSONObject obj = null;
             try {
-                obj = PixabayFetcher.fetch(query, options, nbIterations, Math.min(nbCard-nbGenerated, 100));
+                obj = PixabayFetcher.fetch(query, options, nbIterations, Math.min(Math.max(nbCard-nbGenerated, 3), 100));
 
                 Card[] cardsTemp = Card.fromPixabayRespond(obj, nbCard-nbGenerated);
 

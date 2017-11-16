@@ -38,6 +38,9 @@
                     <li class="nav-item active">
                         <a class="nav-link" href="allCards">Toutes les cartes</a>
                     </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="myPoints">Mes points</a>
+                    </li>
                 </ul>
 
                 <form class="form-inline mr-sm-3">
@@ -50,7 +53,7 @@
                     <c:choose>
                         <c:when test="${isConnected}">
                             <span class="navbar-text mr-2">Utilisateur : ${userEmail}</span>
-                            <a class="btn align-middle btn-danger" href="${logoutURL}" >Déconnexion"</a>
+                            <a class="btn align-middle btn-danger" href="${logoutURL}" >Déconnexion</a>
                         </c:when>
                         <c:otherwise>
                             <span class="navbar-text mr-2">Non connecté</span>
