@@ -393,64 +393,6 @@ public class Card {
         BufferedImage bfImg = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_3BYTE_BGR);
         Graphics2D cardGraphics = bfImg.createGraphics();
         // Get the image of pixabayImageURL
-
-        URL url = new URL("https://www.sciencesetavenir.fr/assets/img/2016/04/14/cover-r4x3w1000-57e16a3841d3a-berger-australien.jpg");
-
-        // change url by "this.pixabayImageURL"
-        BufferedImage newImg = Card.urlImageToBufferedImage(url);
-
-
-//         fill the card background
-        cardGraphics.setColor(Color.getHSBColor(36, 75, 99));
-        cardGraphics.fillRect(0, 0, WIDTH, HEIGHT);
-
-        // Add image on the top of the card and resize it
-        cardGraphics.drawImage(newImg, 25, 25, 350, 400, null);
-
-        // Add the rarity square
-        cardGraphics.setColor(Color.red);
-        Rectangle rect = new Rectangle(25, 450, 350, 25);
-        cardGraphics.fill(rect);
-        cardGraphics.draw(rect);
-        // Add the rarity text
-        cardGraphics.setColor(Color.WHITE);
-        Font ft = new Font("Purisa", Font.PLAIN, 15);
-        Card.drawCenteredString(cardGraphics, ""+this.probability+"%", rect, ft);
-
-        // Add the tags square
-        cardGraphics.setColor(Color.gray);
-        rect = new Rectangle(25, 485, 350, 25);
-        cardGraphics.fill(rect);
-        cardGraphics.draw(rect);
-        // Add tags text
-        cardGraphics.setColor(Color.WHITE);
-        ft = new Font("Courier", Font.PLAIN, 15);
-        Card.drawCenteredString(cardGraphics, Arrays.toString(this.tags), rect, ft);
-
-
-        // Add another square
-        cardGraphics.setColor(Color.orange);
-        rect = new Rectangle(25, 540, 350, 25);
-        cardGraphics.fill(rect);
-        cardGraphics.draw(rect);
-
-        // Add the id square
-        cardGraphics.setColor(Color.black);
-        rect = new Rectangle(325, 575, 50, 15);
-        cardGraphics.fill(rect);
-        cardGraphics.draw(rect);
-        // Add the id text
-        cardGraphics.setColor(Color.WHITE);
-        ft = new Font("Georgia", Font.PLAIN, 15);
-        Card.drawCenteredString(cardGraphics, ""+this.id, rect, ft);
-
-
-    // TODO : generate Card image with Graphics2D
-    public void generateCardImage() throws IOException {
-        // Making image
-        BufferedImage bfImg = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_3BYTE_BGR);
-        Graphics2D cardGraphics = bfImg.createGraphics();
-        // Get the image of pixabayImageURL
         BufferedImage newImg = Card.urlImageToBufferedImage(this.pixabayImageURL);
 
 
