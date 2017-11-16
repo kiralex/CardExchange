@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Locale;
 import java.util.logging.Logger;
 
 
@@ -40,10 +41,21 @@ public class PixabayFetcher {
             this.lang = lang;
         }
 
+        /**
+         * Return the entire language name
+         * @return
+         */
         @Override
         public String toString() {
-            return this.lang;
+            Locale loc = new Locale(this.lang);
+            return loc.getDisplayLanguage(loc);
+
         }
+
+
+
+
+
     }
 
     /**
@@ -93,6 +105,11 @@ public class PixabayFetcher {
         Category(String category){
             this.category = category;
         }
+
+        @Override
+        public String toString() {
+            return this.category;
+        }
     }
 
     /**
@@ -137,15 +154,15 @@ public class PixabayFetcher {
     public enum EditorChoice implements PixabayAPIOptions {
         ENABLED("true"), DISABLED("false");
 
-        final private String safeSearch;
+        final private String editorChoice;
 
-        EditorChoice(String safeSearch){
-            this.safeSearch = safeSearch;
+        EditorChoice(String editorChoice){
+            this.editorChoice = editorChoice;
         }
 
         @Override
         public String toString() {
-            return this.safeSearch;
+            return this.editorChoice;
         }
     }
 
