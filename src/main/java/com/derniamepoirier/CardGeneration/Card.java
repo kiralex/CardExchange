@@ -10,6 +10,7 @@ import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
 import com.google.code.appengine.awt.*;
+import com.google.code.appengine.awt.geom.RoundRectangle2D;
 import com.google.code.appengine.awt.image.BufferedImage;
 import com.google.code.appengine.imageio.IIOImage;
 import com.google.code.appengine.imageio.ImageIO;
@@ -27,8 +28,10 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.text.Normalizer;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 public class Card {
     private static final int WIDTH = 400;
@@ -396,7 +399,7 @@ public class Card {
         BufferedImage newImg = Card.urlImageToBufferedImage(this.pixabayImageURL);
 
 
-//         fill the card background
+//        fill the card background
         cardGraphics.setColor(Color.getHSBColor(36, 75, 99));
         cardGraphics.fillRect(0, 0, WIDTH, HEIGHT);
 
@@ -405,38 +408,40 @@ public class Card {
 
         // Add the rarity square
         cardGraphics.setColor(Color.red);
-        cardGraphics.fillRect(25, 450, 350, 25);
+        Rectangle rect = new Rectangle(25, 450, 350, 25);
+        cardGraphics.draw(rect);
+        cardGraphics.fill(rect);
         // Add the rarity text
         cardGraphics.setColor(Color.WHITE);
-        cardGraphics.setFont(new Font("Purisa", Font.PLAIN, 15));
-        cardGraphics.drawString(""+this.probability+"%", 28, 485);
+        Font ft = new Font("Purisa", Font.PLAIN, 15);
+        Card.drawCenteredString(cardGraphics, String.format("%.2f", this.probability) +"%", rect, ft);
 
         // Add the tags square
         cardGraphics.setColor(Color.gray);
-        cardGraphics.fillRect(25, 485, 350, 25);
+        rect = new Rectangle(25, 485, 350, 25);
+        cardGraphics.draw(rect);
+        cardGraphics.fill(rect);
         // Add tags text
         cardGraphics.setColor(Color.WHITE);
-        cardGraphics.setFont(new Font("Courier", Font.PLAIN, 15));
-        for (int i = 0; i < this.tags.length ; i++) {
-            if (i == 0)
-                cardGraphics.drawString(""+this.tags[i], 28, 515);
-            else if (i < this.tags.length -1)
-                cardGraphics.drawString(", "+this.tags[i], 28 + i*40, 515);
-            else
-                cardGraphics.drawString(this.tags[i] + " !-_-!", 28 + i*40, 515);
-        }
+        ft = new Font("Courier", Font.PLAIN, 15);
+        Card.drawCenteredString(cardGraphics, deAccentStringArray(this.tags), rect, ft);
 
         // Add another square
         cardGraphics.setColor(Color.gray);
-        cardGraphics.fillRect(25, 540, 350, 25);
+        rect = new Rectangle(25, 515, 350, 25);
+        cardGraphics.draw(rect);
+        cardGraphics.fill(rect);
 
         // Add the id square
         cardGraphics.setColor(Color.black);
-        cardGraphics.fill3DRect(325, 575, 50, 15, true);
+        RoundRectangle2D rect2D = new RoundRectangle2D.Float(250, 550, 125, 30, 35, 5);
+        cardGraphics.draw(rect2D);
+        cardGraphics.fill(rect2D);
+
         // Add the id text
         cardGraphics.setColor(Color.WHITE);
-        cardGraphics.setFont(new Font("Georgia", Font.PLAIN, 15));
-        cardGraphics.drawString(""+this.id, 28, 595);
+        ft = new Font("Georgia", Font.PLAIN, 15);
+        Card.drawCenteredString(cardGraphics, ""+this.id, rect2D, ft);
 
         GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/jpeg").acl("public-read").build();
         GcsService service = GcsServiceFactory.createGcsService();
@@ -555,4 +560,42 @@ public class Card {
         // Draw the String
         g.drawString(text, x, y);
     }
+
+    /**
+     * Draw a String centered in the middle of a y roundedRectangle at 10px to the begin x of the rectangle.
+     *
+     * @param g The Graphics instance.
+     * @param text The String to draw.
+     * @param rect The roundedRectangle to center the text in.
+     */
+    public static void drawCenteredString(Graphics g, String text, RoundRectangle2D rect, Font font) {
+        // Get the FontMetrics
+        FontMetrics metrics = g.getFontMetrics(font);
+        // Determine the X coordinate for the text
+        int x = (int) rect.getX() + 10;
+        // Determine the Y coordinate for the text (note we add the ascent, as in java 2d 0 is top of the screen)
+        int y = (int) (rect.getY() + rect.getHeight() + metrics.getAscent()/2);
+        // Set the font
+        g.setFont(font);
+        // Draw the String
+        g.drawString(text, x, y);
+    }
+
+    public static String deAccentStringArray (String[] strArr) {
+        String res = "";
+
+        for (String str: strArr) {
+            res += deAccent(str);
+        }
+
+        return res;
+    }
+
+    public static String deAccent(String str) {
+        String nfdNormalizedString = Normalizer.normalize(str, Normalizer.Form.NFD);
+        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+        return pattern.matcher(nfdNormalizedString).replaceAll("");
+    }
+
+
 }

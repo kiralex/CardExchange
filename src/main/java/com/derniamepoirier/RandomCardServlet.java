@@ -19,11 +19,12 @@ public class RandomCardServlet extends HttpServlet {
             // save into datastore
             cd.generateCardImage();
             request.setAttribute("card", cd);
-
             RequestDispatcher rd = request.getRequestDispatcher("index.jsp");
             rd.forward(request,response);
         } catch (DatastoreGetter.DataStoreNotAvailableException e) {
             e.printStackTrace();
         }
     }
+
+
 }
