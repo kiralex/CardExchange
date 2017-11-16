@@ -108,6 +108,30 @@ public class Card {
     }
 
     /**
+     * Restore Card from an entity obtained from a Datastore query
+     * @param cardEntity {@link Entity} which contain informations of the card
+     * @return
+     */
+    private static Card restoreFromEntity(Entity cardEntity){
+        if(!cardEntity.getKind().equals("Card"))
+            return null;
+
+        String tags[] = ((String) cardEntity.getProperty("tags")).split(",\\s*");
+        URL pixabayPageURL = null, pixabayImageURL = null, cardImageURL = null;
+        try {
+            pixabayPageURL = new URL((String) cardEntity.getProperty("pixabayPageURL"));
+            pixabayImageURL = new URL((String) cardEntity.getProperty("pixabayImageURL"));
+            cardImageURL = new URL((String) cardEntity.getProperty("cardImageURL"));
+        } catch (MalformedURLException e) { /* will not be throwed */ }
+        String authorName = (String) cardEntity.getProperty("pixabayAuthorName");
+        double probability = ((Double) cardEntity.getProperty("probability")).doubleValue();
+
+        Key k = cardEntity.getKey();
+
+        return new Card(k.getId(), tags, pixabayPageURL, pixabayImageURL, cardImageURL, authorName, probability);
+    }
+
+    /**
      * Restore {@link Card} from store with its id
      * @param id id of the card
      * @return <ul>
@@ -127,18 +151,54 @@ public class Card {
             return null;
         }
 
-        String tags[] = ((String) cardEntity.getProperty("tags")).split(",\\s*");
-        URL pixabayPageURL = null, pixabayImageURL = null, cardImageURL = null;
-        try {
-            pixabayPageURL = new URL((String) cardEntity.getProperty("pixabayPageURL"));
-            pixabayImageURL = new URL((String) cardEntity.getProperty("pixabayImageURL"));
-            cardImageURL = new URL((String) cardEntity.getProperty("cardImageURL"));
-        } catch (MalformedURLException e) { /* will not be throwed */ }
-        String authorName = (String) cardEntity.getProperty("pixabayAuthorName");
-        double probability = ((Double) cardEntity.getProperty("probability")).doubleValue();
+        return Card.restoreFromEntity(cardEntity);
 
 
-        return new Card(id, tags, pixabayPageURL, pixabayImageURL, cardImageURL, authorName, probability);
+    }
+
+    /**
+     * Restore several cards from the store
+     * @param nbPerPage number of {@link Card}s
+     * @param page page offset
+     * @return {@link Card}s Array
+     * @throws DatastoreGetter.DataStoreNotAvailableException
+     */
+    public static Card[] restoreMultipleFromStore(int nbPerPage, int page) throws DatastoreGetter.DataStoreNotAvailableException {
+        DatastoreService datastore = DatastoreGetter.getDatastore();
+
+        Query query = new Query("Card");
+        PreparedQuery preparedQuery = datastore.prepare(query);
+
+        if(nbPerPage <= 0 )
+            nbPerPage = 20;
+        if(page <= 0)
+            page = 1;
+
+        List<Entity> entities;
+
+
+        if(page == 0)
+            entities = preparedQuery.asList(FetchOptions.Builder.withLimit(nbPerPage));
+        else
+            entities = preparedQuery.asList(FetchOptions.Builder.withLimit(nbPerPage).offset((nbPerPage)*(page-1)));
+
+        Card cards[] = new Card[entities.size()];
+        int cpt = 0;
+        for (Entity e: entities) {
+            cards[cpt] = Card.restoreFromEntity(e);
+            cpt++;
+        }
+        return cards;
+    }
+
+    public static int countAllCards() throws DatastoreGetter.DataStoreNotAvailableException {
+        DatastoreService datastore = DatastoreGetter.getDatastore();
+
+        Query query = new Query("Card").setKeysOnly();
+        PreparedQuery preparedQuery = datastore.prepare(query);
+
+
+        return preparedQuery.asList(FetchOptions.Builder.withDefaults()).size();
     }
 
     /**
@@ -309,18 +369,9 @@ public class Card {
         Iterator iter = ImageIO.getImageWritersByFormatName("png");
         ImageWriter writer = (ImageWriter)iter.next();
 
-        if (writer == null) {
-            log.severe("Yolo !!!!!!! RIEN NE VA PLUS !!!!!!!!!");
-            return null;
-        }
-
-
-        log.info("Tout vas bien pour le moment !!!");
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         ImageOutputStream ios = ImageIO.createImageOutputStream(bytes);
         writer.setOutput(ios);
-
-        log.info("Tout vas bien pour le moment 2 _________");
 
         ImageWriteParam param = writer.getDefaultWriteParam();
 

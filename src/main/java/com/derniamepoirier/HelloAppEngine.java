@@ -65,7 +65,7 @@ public class HelloAppEngine extends HttpServlet {
     PixabayFetcher.PixabayAPIOptions options[] = new PixabayFetcher.PixabayAPIOptions[]{PixabayFetcher.ImageType.PHOTO, PixabayFetcher.Order.POPULAR, PixabayFetcher.Orientation.VERTICAL};
 
     try {
-      Card cards[] = CardGenerator.generate("poney", options, 3);
+      Card cards[] = CardGenerator.generate("poney", options, 10);
 //
 //      for (Card c: cards ) {
 //        response.getWriter().println(c);
