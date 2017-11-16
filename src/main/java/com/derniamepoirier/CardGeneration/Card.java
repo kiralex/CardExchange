@@ -397,51 +397,41 @@ public class Card {
         Graphics2D cardGraphics = bfImg.createGraphics();
         // Get the image of pixabayImageURL
         BufferedImage newImg = Card.urlImageToBufferedImage(this.pixabayImageURL);
+        newImg = makeRoundedCornerImage(newImg, 50);
+
+        Color colorBgText = new Color(254, 212, 149);
+        Color colorBgCard = new Color(164, 107, 20);
+        Font fontText = new Font("Mona Lisa Solid ITC TT", Font.PLAIN, 15);
+        Font fontSquareId = new Font("Impact", Font.PLAIN, 15);
 
 
 //        fill the card background
-        cardGraphics.setColor(Color.getHSBColor(36, 75, 99));
+        cardGraphics.setColor(colorBgCard);
         cardGraphics.fillRect(0, 0, WIDTH, HEIGHT);
 
         // Add image on the top of the card and resize it
         cardGraphics.drawImage(newImg, 25, 25, 350, 400, null);
 
-        // Add the rarity square
-        cardGraphics.setColor(Color.red);
-        Rectangle rect = new Rectangle(25, 450, 350, 25);
-        cardGraphics.draw(rect);
-        cardGraphics.fill(rect);
-        // Add the rarity text
-        cardGraphics.setColor(Color.WHITE);
-        Font ft = new Font("Purisa", Font.PLAIN, 15);
-        Card.drawCenteredString(cardGraphics, String.format("%.2f", this.probability) +"%", rect, ft);
+        // Add the rarity text and square
+        RoundRectangle2D rect = new RoundRectangle2D.Float(25, 430, 150, 25, 25, 25);
+        addSquareAndTextIntoGraphics2D(cardGraphics,
+                "rarete : "+ String.format("%.2f", this.probability) +"%",
+                rect,colorBgText, Color.BLACK, fontText);
 
-        // Add the tags square
-        cardGraphics.setColor(Color.gray);
-        rect = new Rectangle(25, 485, 350, 25);
-        cardGraphics.draw(rect);
-        cardGraphics.fill(rect);
-        // Add tags text
-        cardGraphics.setColor(Color.WHITE);
-        ft = new Font("Courier", Font.PLAIN, 15);
-        Card.drawCenteredString(cardGraphics, deAccentStringArray(this.tags), rect, ft);
+        // Add the tags square and text
+        rect = new RoundRectangle2D.Float(25, 460, 350, 25, 25, 25);
+        addSquareAndTextIntoGraphics2D(cardGraphics, "Types : " + deAccentStringArray(this.tags),
+                rect,colorBgText, Color.BLACK, fontText);
 
-        // Add another square
-        cardGraphics.setColor(Color.gray);
-        rect = new Rectangle(25, 515, 350, 25);
-        cardGraphics.draw(rect);
-        cardGraphics.fill(rect);
-
-        // Add the id square
-        cardGraphics.setColor(Color.black);
-        RoundRectangle2D rect2D = new RoundRectangle2D.Float(250, 550, 125, 30, 35, 5);
-        cardGraphics.draw(rect2D);
-        cardGraphics.fill(rect2D);
+        // Add Leyenda square and text
+        rect = new RoundRectangle2D.Float(25, 500, 350, 70, 25, 25);
+        addSquareAndTextIntoGraphics2D(cardGraphics, "Legende : ",
+                rect,colorBgText, Color.BLACK, fontText);
 
         // Add the id text
-        cardGraphics.setColor(Color.WHITE);
-        ft = new Font("Georgia", Font.PLAIN, 15);
-        Card.drawCenteredString(cardGraphics, ""+this.id, rect2D, ft);
+        rect = new RoundRectangle2D.Float(275, 570, 125, 30, 25, 25);
+        addSquareAndTextIntoGraphics2D(cardGraphics, "id : " + this.id,
+                rect,colorBgCard, Color.WHITE, fontSquareId);
 
         GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/jpeg").acl("public-read").build();
         GcsService service = GcsServiceFactory.createGcsService();
@@ -542,7 +532,7 @@ public class Card {
     }
 
     /**
-     * Draw a String centered in the middle of a y Rectangle at 10px to the begin x of the rectangle.
+     * Draw a String centered in the middle of a y Rectangle at 15px to the begin x of the rectangle.
      *
      * @param g The Graphics instance.
      * @param text The String to draw.
@@ -552,7 +542,7 @@ public class Card {
         // Get the FontMetrics
         FontMetrics metrics = g.getFontMetrics(font);
         // Determine the X coordinate for the text
-        int x = rect.x + 10;
+        int x = rect.x + 15;
         // Determine the Y coordinate for the text (note we add the ascent, as in java 2d 0 is top of the screen)
         int y = rect.y + rect.height + metrics.getAscent()/2;
         // Set the font
@@ -562,7 +552,7 @@ public class Card {
     }
 
     /**
-     * Draw a String centered in the middle of a y roundedRectangle at 10px to the begin x of the rectangle.
+     * Draw a String centered in the middle of a y roundedRectangle at 15px to the begin x of the rectangle.
      *
      * @param g The Graphics instance.
      * @param text The String to draw.
@@ -572,7 +562,7 @@ public class Card {
         // Get the FontMetrics
         FontMetrics metrics = g.getFontMetrics(font);
         // Determine the X coordinate for the text
-        int x = (int) rect.getX() + 10;
+        int x = (int) rect.getX() + 15;
         // Determine the Y coordinate for the text (note we add the ascent, as in java 2d 0 is top of the screen)
         int y = (int) (rect.getY() + rect.getHeight() + metrics.getAscent()/2);
         // Set the font
@@ -595,6 +585,57 @@ public class Card {
         String nfdNormalizedString = Normalizer.normalize(str, Normalizer.Form.NFD);
         Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
         return pattern.matcher(nfdNormalizedString).replaceAll("");
+    }
+
+    /**
+     * Add a rounded corner to a picture
+     * @param image
+     * @param cornerRadius in pixel
+     * @return
+     */
+    public static BufferedImage makeRoundedCornerImage(BufferedImage image, int cornerRadius) {
+        int w = image.getWidth();
+        int h = image.getHeight();
+        BufferedImage output = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+
+        Graphics2D g2 = output.createGraphics();
+
+        // This is what we want, but it only does hard-clipping, i.e. aliasing
+        // g2.setClip(new RoundRectangle2D ...)
+
+        // so instead fake soft-clipping by first drawing the desired clip shape
+        // in fully opaque white with antialiasing enabled...
+        g2.setComposite(AlphaComposite.Src);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setColor(Color.WHITE);
+        g2.fill(new RoundRectangle2D.Float(0, 0, w, h, cornerRadius, cornerRadius));
+
+        // ... then compositing the image on top,
+        // using the white shape from above as alpha source
+        g2.setComposite(AlphaComposite.SrcAtop);
+        g2.drawImage(image, 0, 0, null);
+
+        g2.dispose();
+
+        return output;
+    }
+
+    /**
+     * Add a square and a text y centering into a graphics2D
+     * @param g
+     * @param text to draw
+     * @param rect rectangle to draw
+     * @param colorBgText color of the rectangle
+     * @param colorText color of the text
+     * @param fontText font of the text
+     */
+    public static void addSquareAndTextIntoGraphics2D(Graphics2D g, String text, RoundRectangle2D rect, Color colorBgText, Color colorText, Font fontText) {
+        g.setColor(colorBgText);
+        g.draw(rect);
+        g.fill(rect);
+        g.setColor(colorText);
+        Card.drawCenteredString(g, text, rect, fontText);
+
     }
 
 
