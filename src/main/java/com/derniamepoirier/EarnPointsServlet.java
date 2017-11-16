@@ -10,36 +10,28 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
 
-@WebServlet(name = "MyPointsServlet", value="/myPoints")
-public class MyPointsServlet extends HttpServlet {
+@WebServlet(name = "EarnPointsServlet", value="earnPoints")
+public class EarnPointsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        long nbPoints = 0;
-        Date nextPointEarnDate = null;
-        boolean canEarnPoints = false;
-
         try {
-            nbPoints = UserManagment.getNbPoints();
-            nextPointEarnDate = UserManagment.getNextPointEarnDate();
-            canEarnPoints = UserManagment.canEarnPoints();
-
-            request.setAttribute("nbPoints", nbPoints);
-            request.setAttribute("nextPointEarnDate", nextPointEarnDate.getTime());
-            request.setAttribute("canEarnPoints", canEarnPoints);
-            RequestDispatcher rd = request.getRequestDispatcher("myPoints.jsp");
+            UserManagment.earnPoints();
+            RequestDispatcher rd = request.getRequestDispatcher("/myPoints");
             rd.forward(request,response);
 
         } catch (UserManagment.UserNotLoggedInException e) {
-            request.setAttribute("errorMessage", "Vous devez être connecté pour connaître votre nombre de points");
+            request.setAttribute("errorMessage", "Vous devez être connecté pour récupérer des points");
             RequestDispatcher rd = request.getRequestDispatcher("error.jsp");
             rd.forward(request,response);
         } catch (DatastoreGetter.DataStoreNotAvailableException e) {
             request.setAttribute("errorMessage", "Datastore non disponible. Réessayez plus tard");
             RequestDispatcher rd = request.getRequestDispatcher("error.jsp");
             rd.forward(request,response);
+        } catch (UserManagment.NoPointsToEarnException e) {
+            request.setAttribute("errorMessage", "Vous ne pouvez pas encore gagner de points. Attendez encore un peu !");
+            RequestDispatcher rd = request.getRequestDispatcher("error.jsp");
+            rd.forward(request,response);
         }
-
 
     }
 }

@@ -41,6 +41,9 @@
                     <li class="nav-item active">
                         <a class="nav-link" href="myPoints">Mes points</a>
                     </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="drawCards">Tirer des cartes</a>
+                    </li>
                 </ul>
 
                 <form class="form-inline mr-sm-3">

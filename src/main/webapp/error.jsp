@@ -10,8 +10,8 @@
 
     <jsp:body>
         <div class="alert alert-danger" role="alert">
-            <h4 class="alert-heading"><span class="badge badge-danger">Erreur</span></h4>
-            <h4>Opps ! Une erreur a eu lieu !
+            <span class="alert-heading"><span class="badge badge-danger">Erreur</span></span>
+            <h4>Opps ! Quelque chose s'est mal passé... </h4>
             <h6>${requestScope.errorMessage}</h6>
         </div>
     </jsp:body>

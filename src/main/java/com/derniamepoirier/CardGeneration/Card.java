@@ -215,8 +215,6 @@ public class Card {
         PreparedQuery preparedQuery = datastore.prepare(query);
         List<Entity> entities = preparedQuery.asList(FetchOptions.Builder.withDefaults());
 
-        log.info("nb entities : " + entities.size());
-
         double maxProba = 0.0;
         for(Entity e : entities){
             maxProba += (Double) e.getProperty("probability");
