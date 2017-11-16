@@ -1,7 +1,7 @@
-package com.derniamepoirier.CardGeneration;
+package com.derniamepoirier.User;
 
+import com.derniamepoirier.CardGeneration.Card;
 import com.derniamepoirier.Utils.DatastoreGetter;
-import com.derniamepoirier.Utils.UserManagment;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;

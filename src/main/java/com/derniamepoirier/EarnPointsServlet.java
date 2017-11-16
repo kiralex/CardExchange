@@ -1,7 +1,7 @@
 package com.derniamepoirier;
 
 import com.derniamepoirier.Utils.DatastoreGetter;
-import com.derniamepoirier.Utils.UserManagment;
+import com.derniamepoirier.User.UserManagment;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;

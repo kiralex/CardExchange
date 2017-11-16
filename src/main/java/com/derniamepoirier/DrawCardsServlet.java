@@ -1,9 +1,9 @@
 package com.derniamepoirier;
 
 import com.derniamepoirier.CardGeneration.Card;
-import com.derniamepoirier.CardGeneration.CardAssignmentHelper;
+import com.derniamepoirier.User.CardAssignmentHelper;
 import com.derniamepoirier.Utils.DatastoreGetter;
-import com.derniamepoirier.Utils.UserManagment;
+import com.derniamepoirier.User.UserManagment;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;

@@ -1,4 +1,4 @@
-<%@ page import="com.derniamepoirier.Utils.UserManagment" %>
+<%@ page import="com.derniamepoirier.User.UserManagment" %>
 <%@page contentType="text/html" pageEncoding="UTF-8" language="java" %>
 
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
