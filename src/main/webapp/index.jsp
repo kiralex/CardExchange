@@ -5,11 +5,4 @@
 
 <t:userpage>
     This is an empty user page !
-
-
-      <c:if test="${not empty requestScope.card}">
-    +        ID de la carte<br/>
-    +
-    +        <c:out value="${requestScope.card.getId()}" />
-    +    </c:if>
 </t:userpage>
