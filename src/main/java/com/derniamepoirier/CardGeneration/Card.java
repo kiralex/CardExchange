@@ -395,9 +395,7 @@ public class Card {
         // Making image
         BufferedImage bfImg = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_3BYTE_BGR);
         Graphics2D cardGraphics = bfImg.createGraphics();
-        // Get the image of pixabayImageURL
-        BufferedImage newImg = Card.urlImageToBufferedImage(this.pixabayImageURL);
-        newImg = makeRoundedCornerImage(newImg, 50);
+
 
         Color colorBgText = new Color(254, 212, 149);
         Color colorBgCard = new Color(164, 107, 20);
@@ -405,34 +403,28 @@ public class Card {
         Font fontSquareId = new Font("Impact", Font.PLAIN, 15);
 
 
-//        fill the card background
-        cardGraphics.setColor(colorBgCard);
-        cardGraphics.fillRect(0, 0, WIDTH, HEIGHT);
 
-        // Add image on the top of the card and resize it
-        cardGraphics.drawImage(newImg, 25, 25, 350, 400, null);
+
+        this.addImageAndStarToCard (cardGraphics, colorBgCard);
 
         // Add the rarity text and square
         RoundRectangle2D rect = new RoundRectangle2D.Float(25, 430, 150, 25, 25, 25);
-        addSquareAndTextIntoGraphics2D(cardGraphics,
-                "rarete : "+ String.format("%.2f", this.probability) +"%",
-                rect,colorBgText, Color.BLACK, fontText);
+        addSquareAndTextIntoGraphics2D(cardGraphics,"rarete : "+ String.format("%.2f", this.probability) +"%", rect,colorBgText, Color.BLACK, fontText);
 
         // Add the tags square and text
         rect = new RoundRectangle2D.Float(25, 460, 350, 25, 25, 25);
-        addSquareAndTextIntoGraphics2D(cardGraphics, "Types : " + deAccentStringArray(this.tags),
-                rect,colorBgText, Color.BLACK, fontText);
+        addSquareAndTextIntoGraphics2D(cardGraphics, "Types : " + deAccentStringArray(this.tags), rect,colorBgText, Color.BLACK, fontText);
 
         // Add Leyenda square and text
         rect = new RoundRectangle2D.Float(25, 500, 350, 70, 25, 25);
-        addSquareAndTextIntoGraphics2D(cardGraphics, "Legende : ",
-                rect,colorBgText, Color.BLACK, fontText);
+        addSquareAndTextIntoGraphics2D(cardGraphics, "Legende : ", rect,colorBgText, Color.BLACK, fontText);
 
         // Add the id text
         rect = new RoundRectangle2D.Float(275, 570, 125, 30, 25, 25);
-        addSquareAndTextIntoGraphics2D(cardGraphics, "id : " + this.id,
-                rect,colorBgCard, Color.WHITE, fontSquareId);
+        addSquareAndTextIntoGraphics2D(cardGraphics, "id : " + this.id, rect,colorBgCard, Color.WHITE, fontSquareId);
 
+
+        // Save into GoogleCloudStorage
         GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/jpeg").acl("public-read").build();
         GcsService service = GcsServiceFactory.createGcsService();
         GcsFilename name = new GcsFilename("cardexchangemaven.appspot.com", this.id+".jpg");
@@ -638,5 +630,28 @@ public class Card {
 
     }
 
+
+    public void addImageAndStarToCard (Graphics2D g, Color colorBgCard) throws IOException {
+        // Get the image of pixabayImageURL
+        BufferedImage newImg = Card.urlImageToBufferedImage(this.pixabayImageURL);
+        newImg = makeRoundedCornerImage(newImg, 50);
+        //        fill the card background
+        g.setColor(colorBgCard);
+        g.fillRect(0, 0, WIDTH, HEIGHT);
+        // Add image on the top of the card and resize it
+        g.drawImage(newImg, 25, 25, 350, 400, null);
+
+
+
+        // Get the star point on top right of the card
+        BufferedImage starImg = ImageIO.read(new URL("https://storage.googleapis.com/cardexchangemaven.appspot.com/_star_point.png"));
+
+        int nbStar = Math.toIntExact(Math.round(10 * this.probability));
+
+        // Add the star to the image
+        for (int i = 0; i < nbStar; i++)
+            g.drawImage(starImg, 350 - (22 * i), 2, 20, 20, null);
+
+    }
 
 }
