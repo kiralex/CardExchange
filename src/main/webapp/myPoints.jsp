@@ -1,4 +1,4 @@
-<%@ page import="com.derniamepoirier.CardGeneration.Card" %>
+<%@ page import="com.derniamepoirier.Utils.UserManagment" %>
 <%@page contentType="text/html" pageEncoding="UTF-8" language="java" %>
 
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
@@ -13,6 +13,13 @@
 
     <jsp:body>
         <h1>Mes points</h1>
+        
+        <c:if test="${earnPoints == true}">
+            <div class="alert alert-success" role="alert">
+                Vous avez gagné ${UserManagment.NB_POINTS_PER_PERIOD} points !
+            </div>
+        </c:if>
+
         <h4>
             Vous avez <span class="badge badge-success">${nbPoints}</span> points.
             <c:choose>
@@ -27,7 +34,7 @@
         <c:choose>
             <c:when test="${canEarnPoints == true}">
                 <h3>
-                    Vous avez débloqué 30 points. Pour les obtenir, <a href="/earnPoints" class="btn btn-success btn-sm">cliquez ici</a>
+                    Vous avez débloqué ${UserManagment.NB_POINTS_PER_PERIOD} points. Pour les obtenir, <a href="/earnPoints" class="btn btn-success btn-sm">cliquez ici</a>
                 </h3>
             </c:when>
             <c:otherwise>

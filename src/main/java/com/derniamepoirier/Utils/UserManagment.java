@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 
 public class UserManagment {
     private static final Logger log = Logger.getLogger(UserManagment.class.getName());
-    private static final int NB_POINTS_PER_PERIOD = 30;
+    public static final int NB_POINTS_PER_PERIOD = 30;
 
     private UserManagment(){}
 
@@ -22,6 +22,13 @@ public class UserManagment {
             super(str);
         }
     }
+
+    public static class NoPointsToEarnException extends Exception{
+        public NoPointsToEarnException(String str) {
+            super(str);
+        }
+    }
+
 
     private static UserService getUserService(){
         return UserServiceFactory.getUserService();
@@ -46,9 +53,9 @@ public class UserManagment {
         return entity;
     }
 
-    public static boolean earnPoints() throws UserNotLoggedInException, DatastoreGetter.DataStoreNotAvailableException {
+    public static void earnPoints() throws UserNotLoggedInException, DatastoreGetter.DataStoreNotAvailableException, NoPointsToEarnException {
         if(!UserManagment.canEarnPoints())
-            return false;
+            throw new NoPointsToEarnException("Vous devez attendre pour récupérer des points");
 
         Entity entity = UserManagment.getUserInfos();
 
@@ -62,8 +69,6 @@ public class UserManagment {
 
         DatastoreService datastore = DatastoreGetter.getDatastore();
         datastore.put(entity);
-
-        return true;
     }
 
     private static Entity getUserInfos() throws UserNotLoggedInException, DatastoreGetter.DataStoreNotAvailableException {

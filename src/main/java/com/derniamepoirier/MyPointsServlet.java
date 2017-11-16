@@ -26,7 +26,7 @@ public class MyPointsServlet extends HttpServlet {
 
             request.setAttribute("nbPoints", nbPoints);
             request.setAttribute("nextPointEarnDate", nextPointEarnDate.getTime());
-            request.setAttribute("canEarnPoints", true);
+            request.setAttribute("canEarnPoints", canEarnPoints);
             RequestDispatcher rd = request.getRequestDispatcher("myPoints.jsp");
             rd.forward(request,response);
 
