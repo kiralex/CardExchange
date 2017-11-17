@@ -410,7 +410,7 @@ public class Card {
 
         // Add the rarity text and square
         RoundRectangle2D rect = new RoundRectangle2D.Float(25, 430, 350, 25, 12, 12);
-        addSquareAndTextIntoGraphics2D(cardGraphics,this.deAccent("\u00e9 Rareté : "+ String.format("%.2f", this.probability) +"%"), rect,colorBgText, Color.BLACK, fontText);
+        addSquareAndTextIntoGraphics2D(cardGraphics,this.deAccent("Rareté : "+ String.format("%.2f", this.probability) +"%"), rect,colorBgText, Color.BLACK, fontText);
 
         // Add the tags square and text
         rect = new RoundRectangle2D.Float(25, 460, 350, 25, 12, 12);
