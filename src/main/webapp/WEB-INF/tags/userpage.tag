@@ -13,16 +13,18 @@
             UserServiceFactory.getUserService();
     boolean isConnected = userService.isUserLoggedIn();
 
-    boolean isAdmin = UserServiceFactory.getUserService().isUserAdmin();
+    boolean isAdmin = false;
 
     request.setAttribute("isConnected", isConnected);
-    request.setAttribute("isAdmin", isAdmin);
     if(isConnected) {
+        isAdmin = userService.isUserAdmin();
         request.setAttribute("logoutURL", userService.createLogoutURL(request.getRequestURI()));
         request.setAttribute("userEmail", userService.getCurrentUser().getEmail());
     }
     else
         request.setAttribute("loginURL", userService.createLoginURL(request.getRequestURI()));
+
+    request.setAttribute("isAdmin", isAdmin);
 %>
 
 
@@ -42,13 +44,19 @@
                     <li class="nav-item active">
                         <a class="nav-link" href="allCards">Toutes les cartes</a>
                     </li>
-                    <li class="nav-item active">
-                        <a class="nav-link" href="myPoints">Mes points</a>
-                    </li>
 
-                    <li class="nav-item active">
-                        <a class="nav-link" href="generateCards.jsp">Générer des Cartes</a>
-                    </li>
+
+                    <c:if test="${isConnected}" >
+                        <li class="nav-item active">
+                            <a class="nav-link" href="myPoints">Mes points</a>
+                        </li>
+                    </c:if>
+
+                    <c:if test="${isAdmin}">
+                        <li class="nav-item active">
+                            <a class="nav-link" href="generateCards.jsp">Générer des Cartes</a>
+                        </li>
+                    </c:if>
 
 
                 </ul>
