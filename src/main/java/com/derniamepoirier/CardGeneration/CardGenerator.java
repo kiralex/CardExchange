@@ -1,5 +1,9 @@
 package com.derniamepoirier.CardGeneration;
 
+import com.derniamepoirier.CardGeneration.PixabayAPIExceptions.PixabayApiKeyMissingException;
+import com.derniamepoirier.CardGeneration.PixabayAPIExceptions.PixabayIncorrectParameterException;
+import com.derniamepoirier.CardGeneration.PixabayAPIExceptions.PixabayPageOutValidRangeException;
+import com.derniamepoirier.CardGeneration.PixabayAPIExceptions.PixabayResponseCodeException;
 import com.derniamepoirier.Utils.DatastoreGetter;
 import org.json.JSONObject;
 
@@ -50,6 +54,8 @@ public class CardGenerator {
                 nbIterations++;
             } catch (PixabayPageOutValidRangeException e) {
                 pageOutOfRange = true;
+            } catch (IOException e) {
+                e.printStackTrace();
             }
             catch (IOException e) {
                 log.severe("Generate card image failed");

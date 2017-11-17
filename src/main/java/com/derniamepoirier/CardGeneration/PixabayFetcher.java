@@ -1,5 +1,8 @@
 package com.derniamepoirier.CardGeneration;
 
+import com.derniamepoirier.CardGeneration.PixabayAPIExceptions.PixabayApiKeyMissingException;
+import com.derniamepoirier.CardGeneration.PixabayAPIExceptions.PixabayPageOutValidRangeException;
+import com.derniamepoirier.CardGeneration.PixabayAPIExceptions.PixabayResponseCodeException;
 import com.harium.dotenv.Env;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -174,11 +177,11 @@ public class PixabayFetcher {
      * @param query String containing keywords
      * @param options array of {@link PixabayAPIOptions}
      * @return JSONObject which contain the Pixabay API response
-     * @throws PixabayIncorrectParameterException Exception throwed if parameters are incorects
+     * @throws PixabayAPIExceptions.PixabayIncorrectParameterException Exception throwed if parameters are incorects
      * @throws PixabayApiKeyMissingException Exception throwed if API key is missing in environment variables
      * @throws PixabayResponseCodeException Exception throwed if Pixabay respond an error code
      */
-    public static JSONObject fetch(String query, PixabayAPIOptions options[], int page, int nbResultsPerPage) throws PixabayApiKeyMissingException, PixabayIncorrectParameterException, PixabayResponseCodeException, PixabayPageOutValidRangeException {
+    public static JSONObject fetch(String query, PixabayAPIOptions options[], int page, int nbResultsPerPage) throws PixabayApiKeyMissingException, PixabayAPIExceptions.PixabayIncorrectParameterException, PixabayResponseCodeException, PixabayPageOutValidRangeException, PixabayPageOutValidRangeException {
 
         Env.loadParams("./configuration", "env");
         final String PIXABAY_API_KEY = Env.get("PIXABAY_API_KEY");
@@ -188,13 +191,13 @@ public class PixabayFetcher {
             throw new PixabayApiKeyMissingException("Pixabay API Key is missing in environment variables");
 
         if(page <= 0)
-            throw new PixabayIncorrectParameterException("Page number is incorrect");
+            throw new PixabayAPIExceptions.PixabayIncorrectParameterException("Page number is incorrect");
 
         if(nbResultsPerPage < 3)
-            throw new PixabayIncorrectParameterException("Number of results per pages should be greater than or equal than 3");
+            throw new PixabayAPIExceptions.PixabayIncorrectParameterException("Number of results per pages should be greater than or equal than 3");
 
         if(nbResultsPerPage > 200)
-            throw new PixabayIncorrectParameterException("Number of results per pages should be less than or equal to 200");
+            throw new PixabayAPIExceptions.PixabayIncorrectParameterException("Number of results per pages should be less than or equal to 200");
 
         // defaults parameters of the pixabay API request
         Lang lang = Lang.FR;

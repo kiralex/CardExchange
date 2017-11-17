@@ -44,8 +44,7 @@
                     <li class="nav-item active">
                         <a class="nav-link" href="allCards">Toutes les cartes</a>
                     </li>
-
-
+                    
                     <c:if test="${isConnected}" >
                         <li class="nav-item active">
                             <a class="nav-link" href="myPoints">Mes points</a>
@@ -57,7 +56,6 @@
                             <a class="nav-link" href="generateCardsForm.jsp">Générer des Cartes</a>
                         </li>
                     </c:if>
-
 
                 </ul>
 

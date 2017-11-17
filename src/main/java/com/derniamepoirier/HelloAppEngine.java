@@ -1,6 +1,9 @@
 package com.derniamepoirier;
 
-import com.derniamepoirier.CardGeneration.*;
+import com.derniamepoirier.CardGeneration.Card;
+import com.derniamepoirier.CardGeneration.CardGenerator;
+import com.derniamepoirier.CardGeneration.PixabayAPIExceptions.PixabayIncorrectParameterException;
+import com.derniamepoirier.CardGeneration.PixabayFetcher;
 import com.derniamepoirier.Utils.DatastoreGetter;
 import com.google.appengine.api.utils.SystemProperty;
 
@@ -11,6 +14,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Logger;
+
+import static com.derniamepoirier.CardGeneration.PixabayAPIExceptions.PixabayApiKeyMissingException;
+import static com.derniamepoirier.CardGeneration.PixabayAPIExceptions.PixabayResponseCodeException;
 
 
 @WebServlet(name = "HelloAppEngine", value = "/hello")
