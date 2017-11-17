@@ -36,16 +36,8 @@
         <c:set var="pageUrlNoParam" value="${ baseURL }${ requestPath }${ not empty params?'?'+=params:'' }"/>
 
         <div class="row">
-            <p class="font-weight-bold">${requestScope.nbCards} cartes générer !</p>
+            <p class="font-weight-bold">${requestScope.nbCards} Carte générées !</p>
         </div>
-    </c:if>
-
-
-
-    <%-- Failed card generate--%>
-    <c:if test="${empty requestScope.nbCards || requestScope.nbCards==null}" >
-        <h1 class="mb-2 font-weight-bold">Aucunes cartes générer, une erreur est survenue</h1>
-        <h2>${requestScope.nbCards}</h2>
     </c:if>
 
 </t:userpage>

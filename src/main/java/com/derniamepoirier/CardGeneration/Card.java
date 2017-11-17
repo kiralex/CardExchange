@@ -28,10 +28,8 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.text.Normalizer;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 public class Card {
     private static final int WIDTH = 400;
@@ -389,16 +387,21 @@ public class Card {
     }
 
     // TODO : generate Card image with Graphics2D
-    public void generateCardImage() throws IOException {
+    public void generateCardImage() throws IOException, DatastoreGetter.DataStoreNotAvailableException {
         // Making image
         BufferedImage bfImg = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_3BYTE_BGR);
         Graphics2D cardGraphics = bfImg.createGraphics();
 
+        cardGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        cardGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        cardGraphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        cardGraphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+
+
 
         Color colorBgText = new Color(254, 212, 149);
         Color colorBgCard = new Color(164, 107, 20);
-        Font fontText = new Font("Mona Lisa Solid ITC TT", Font.PLAIN, 15);
-        Font fontSquareId = new Font("Impact", Font.PLAIN, 15);
+        Font fontText = new Font("Monospaced", Font.PLAIN, 15);
 
 
 
@@ -406,20 +409,20 @@ public class Card {
         this.addImageAndStarToCard (cardGraphics, colorBgCard);
 
         // Add the rarity text and square
-        RoundRectangle2D rect = new RoundRectangle2D.Float(25, 430, 150, 25, 25, 25);
-        addSquareAndTextIntoGraphics2D(cardGraphics,"rarete : "+ String.format("%.2f", this.probability) +"%", rect,colorBgText, Color.BLACK, fontText);
+        RoundRectangle2D rect = new RoundRectangle2D.Float(25, 430, 350, 25, 12, 12);
+        addSquareAndTextIntoGraphics2D(cardGraphics,this.deAccent("\u00e9 Rareté : "+ String.format("%.2f", this.probability) +"%"), rect,colorBgText, Color.BLACK, fontText);
 
         // Add the tags square and text
-        rect = new RoundRectangle2D.Float(25, 460, 350, 25, 25, 25);
-        addSquareAndTextIntoGraphics2D(cardGraphics, "Types : " + deAccentStringArray(this.tags), rect,colorBgText, Color.BLACK, fontText);
+        rect = new RoundRectangle2D.Float(25, 460, 350, 25, 12, 12);
+        addSquareAndTextIntoGraphics2D(cardGraphics, "Auteur : " + deAccent(this.pixabayAuthorName), rect,colorBgText, Color.BLACK, fontText);
 
         // Add Leyenda square and text
-        rect = new RoundRectangle2D.Float(25, 500, 350, 70, 25, 25);
-        addSquareAndTextIntoGraphics2D(cardGraphics, "Legende : ", rect,colorBgText, Color.BLACK, fontText);
+        rect = new RoundRectangle2D.Float(25, 500, 350, 70, 12, 12);
+        addSquareAndTextIntoGraphics2D(cardGraphics, "Tags : " + this.deAccentStringArray(this.tags) , rect,colorBgText, Color.BLACK, fontText);
 
         // Add the id text
-        rect = new RoundRectangle2D.Float(275, 570, 125, 30, 25, 25);
-        addSquareAndTextIntoGraphics2D(cardGraphics, "id : " + this.id, rect,colorBgCard, Color.WHITE, fontSquareId);
+        rect = new RoundRectangle2D.Float(275, 570, 125, 30, 12, 12);
+        addSquareAndTextIntoGraphics2D(cardGraphics, "id : " + this.id, rect,colorBgCard, Color.WHITE, fontText);
 
         // Add the card url
         this.cardImageURL = new URL("https://storage.googleapis.com/cardexchangemaven.appspot.com/"+this.id+".jpg");
@@ -432,6 +435,9 @@ public class Card {
 
         ByteBuffer buff =  ByteBuffer.wrap(image.getImageData());
         service.createOrReplace(name, opt, buff);
+
+        this.cardImageURL = new URL("https://storage.googleapis.com/cardexchangemaven.appspot.com/" +this.id+".jpg");
+        this.saveToStore();
     }
 
     @Override
@@ -481,8 +487,8 @@ public class Card {
      * @return BufferedImage
      * @throws IOException
      */
-    public static BufferedImage urlImageToBufferedImage (URL imageUrl) throws IOException {
-        String tempName = "urlImageToBufferedImage_last_temp.png";
+    public BufferedImage urlImageToBufferedImage (URL imageUrl) throws IOException {
+        String tempName = this.getId() + "_temp.png";
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         InputStream inputStream = imageUrl.openStream();
         int read;
@@ -520,27 +526,9 @@ public class Card {
         URL pngImg = new URL("https://storage.googleapis.com/cardexchangemaven.appspot.com/"+tempName);
         BufferedImage newImg = ImageIO.read(pngImg);
 
-        return newImg;
-    }
+        service.delete(name);
 
-    /**
-     * Draw a String centered in the middle of a y Rectangle at 15px to the begin x of the rectangle.
-     *
-     * @param g The Graphics instance.
-     * @param text The String to draw.
-     * @param rect The Rectangle to center the text in.
-     */
-    public static void drawCenteredString(Graphics g, String text, Rectangle rect, Font font) {
-        // Get the FontMetrics
-        FontMetrics metrics = g.getFontMetrics(font);
-        // Determine the X coordinate for the text
-        int x = rect.x + 15;
-        // Determine the Y coordinate for the text (note we add the ascent, as in java 2d 0 is top of the screen)
-        int y = rect.y + rect.height + metrics.getAscent()/2;
-        // Set the font
-        g.setFont(font);
-        // Draw the String
-        g.drawString(text, x, y);
+        return newImg;
     }
 
     /**
@@ -564,19 +552,56 @@ public class Card {
     }
 
     public static String deAccentStringArray (String[] strArr) {
-        String res = "";
+        if(strArr.length == 0)
+            return "";
 
-        for (String str: strArr) {
-            res += deAccent(str);
+        String res = strArr[0];
+        for(int i = 1; i < strArr.length; i++){
+            res += ", " + strArr[i];
         }
 
         return res;
     }
 
     public static String deAccent(String str) {
-        String nfdNormalizedString = Normalizer.normalize(str, Normalizer.Form.NFD);
-        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-        return pattern.matcher(nfdNormalizedString).replaceAll("");
+//        String nfdNormalizedString = Normalizer.normalize(str, Normalizer.Form.NFD);
+//        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+//        return pattern.matcher(nfdNormalizedString).replaceAll("");
+
+        String newStr = "";
+
+        for(int i = 0; i < str.length(); i++){
+            char c = str.charAt(i);
+            if(c == 'é'){
+                newStr += 'e';
+            }else if(c =='è'){
+                newStr += 'e';
+            }else if(c =='ê'){
+                newStr += 'e';
+            }else if(c =='à'){
+                newStr += 'a';
+            }else if(c =='â'){
+                newStr += 'a';
+            }else if(c =='ä'){
+                newStr += 'a';
+            }else if(c =='î'){
+                newStr += 'i';
+            }else if(c =='ï'){
+                newStr += 'i';
+            }else if(c =='ô'){
+                newStr += 'o';
+            }else if(c =='ö'){
+                newStr += 'o';
+            }else if(c =='û'){
+                newStr += 'u';
+            }else if(c =='ü'){
+                newStr += 'u';
+            }else{
+                newStr += c;
+            }
+        }
+
+        return newStr;
     }
 
     /**
@@ -633,13 +658,44 @@ public class Card {
 
     public void addImageAndStarToCard (Graphics2D g, Color colorBgCard) throws IOException {
         // Get the image of pixabayImageURL
-        BufferedImage newImg = Card.urlImageToBufferedImage(this.pixabayImageURL);
-        newImg = makeRoundedCornerImage(newImg, 50);
+        BufferedImage newImg = this.urlImageToBufferedImage(this.pixabayImageURL);
+        newImg = makeRoundedCornerImage(newImg, 20);
         //        fill the card background
         g.setColor(colorBgCard);
         g.fillRect(0, 0, WIDTH, HEIGHT);
         // Add image on the top of the card and resize it
-        g.drawImage(newImg, 25, 25, 350, 400, null);
+
+
+        int widthFenetre = 350;
+        int heightFenetre = 400;
+        int widthImage = newImg.getWidth();
+        int heightImage = newImg.getHeight();
+
+        double ratioImage = (0.0 + widthImage) / heightImage;
+        double ratioFenetre = (0.0 + widthFenetre) / heightFenetre;
+
+        int newWidth = 0;
+        int newHeight = 0;
+
+        if(ratioFenetre > ratioImage){
+            newWidth = (widthImage * heightFenetre) / heightImage;
+            newHeight = heightFenetre;
+        }else{
+            newWidth = widthFenetre;
+            newHeight = (heightImage * widthFenetre) / widthImage;
+        }
+
+        int top = (heightFenetre - newHeight) / 2;
+        int left = (widthFenetre - newWidth) / 2;
+
+//        g.drawImage(newImg, 25, 25, 350, 400, null);
+
+
+        if(heightImage > widthImage){
+            g.drawImage(newImg, 25 + left, 25, newWidth, newHeight, null);
+        }else{
+            g.drawImage(newImg, 25, 25 + top, newWidth, newHeight, null);
+        }
 
 
 

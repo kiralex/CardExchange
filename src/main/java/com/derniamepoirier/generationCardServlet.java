@@ -64,16 +64,16 @@ public class generationCardServlet extends HttpServlet {
             Card[] cards = CardGenerator.generate(query, optionsTab, nbCards);
             request.setAttribute("nbCards", nbCards);
             request.setAttribute("cards", cards);
-        } catch (PixabayAPIExceptions.PixabayIncorrectParameterException e) {
-            e.printStackTrace();
-        } catch (PixabayAPIExceptions.PixabayApiKeyMissingException e) {
-            e.printStackTrace();
-        } catch (PixabayAPIExceptions.PixabayResponseCodeException e) {
-            e.printStackTrace();
+        } catch (PixabayAPIExceptions.PixabayIncorrectParameterException | PixabayAPIExceptions.PixabayApiKeyMissingException | PixabayAPIExceptions.PixabayResponseCodeException e) {
+            request.setAttribute("errorMessage", "Erreur lors de la récupération des images");
+            RequestDispatcher rd = request.getRequestDispatcher("error.jsp");
+            rd.forward(request,response);
+            return;
         } catch (DatastoreGetter.DataStoreNotAvailableException e) {
             request.setAttribute("errorMessage", "Datastore non disponible. Réessayez plus tard");
             RequestDispatcher rd = request.getRequestDispatcher("error.jsp");
             rd.forward(request,response);
+            return;
         }
 
 
