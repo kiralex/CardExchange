@@ -10,6 +10,7 @@
     <resource-files>
         <include path="/configuration/**" />
         <include path="/schemas/**" />
+        <include path="/**.png" />
     </resource-files>
     <sessions-enabled>true</sessions-enabled>
 </appengine-web-app>

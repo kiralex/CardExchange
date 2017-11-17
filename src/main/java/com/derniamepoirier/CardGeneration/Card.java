@@ -397,14 +397,9 @@ public class Card {
         cardGraphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         cardGraphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
-
-
         Color colorBgText = new Color(254, 212, 149);
-        Color colorBgCard = new Color(164, 107, 20);
+            Color colorBgCard = new Color(164, 107, 20);
         Font fontText = new Font("Monospaced", Font.PLAIN, 15);
-
-
-
 
         this.addImageAndStarToCard (cardGraphics, colorBgCard);
 
@@ -657,12 +652,15 @@ public class Card {
 
 
     public void addImageAndStarToCard (Graphics2D g, Color colorBgCard) throws IOException {
+        BufferedImage mig = ImageIO.read(new File("newBack.png"));
+        g.drawImage(mig, 0, 0, 400, 600, null);
+
         // Get the image of pixabayImageURL
         BufferedImage newImg = this.urlImageToBufferedImage(this.pixabayImageURL);
         newImg = makeRoundedCornerImage(newImg, 20);
         //        fill the card background
-        g.setColor(colorBgCard);
-        g.fillRect(0, 0, WIDTH, HEIGHT);
+        //g.setColor(colorBgCard);
+        //g.fillRect(0, 0, WIDTH, HEIGHT);
         // Add image on the top of the card and resize it
 
 
@@ -700,7 +698,9 @@ public class Card {
 
 
         // Get the star point on top right of the card
-        BufferedImage starImg = ImageIO.read(new URL("https://storage.googleapis.com/cardexchangemaven.appspot.com/_star_point.png"));
+//        BufferedImage starImg = ImageIO.read(new URL("https://storage.googleapis.com/cardexchangemaven.appspot.com/_star_point.png"));
+
+        BufferedImage starImg = ImageIO.read(new File("star_point.png"));
 
         int nbStar = Math.toIntExact(Math.round(10 * this.probability));
 
