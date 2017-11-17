@@ -55,10 +55,9 @@ public class PixabayFetcher {
 
         }
 
-
-
-
-
+        public String getCode(){
+            return lang;
+        }
     }
 
     /**
@@ -231,7 +230,7 @@ public class PixabayFetcher {
         try {
             URIBuilder uriBuilder = new URIBuilder("https://pixabay.com/api/");
 
-            uriBuilder.addParameter("lang", lang.toString())
+            uriBuilder.addParameter("lang", lang.getCode())
                     .addParameter("image_type", imageType.toString())
                     .addParameter("orientation", orientation.toString())
                     .addParameter("category", category.toString())
@@ -240,7 +239,8 @@ public class PixabayFetcher {
                     .addParameter("order", order.toString())
                     .addParameter("page", String.valueOf(page))
                     .addParameter("per_page", String.valueOf(nbResultsPerPage))
-                    .addParameter("key", PIXABAY_API_KEY);
+                    .addParameter("key", PIXABAY_API_KEY)
+                    .addParameter("q", query.toString());
 
             URL url = uriBuilder.build().toURL();
             log.info("API request : " + url.toString());

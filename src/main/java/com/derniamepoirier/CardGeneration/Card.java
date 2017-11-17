@@ -88,12 +88,12 @@ public class Card {
         JSONArray images = response.getJSONArray("hits");
         ArrayList<Card> arr = new ArrayList<Card>();
 
-        for (int i=0; i < images.length(); i++) {
+        for (int i=0; i < images.length() && i <= nbCards; i++) {
             JSONObject obj = images.getJSONObject(i);
 
-            int id =  obj.getInt("id");
+            int id = obj.getInt("id");
 
-            if(!Card.existInStore(id)){
+            if (!Card.existInStore(id)) {
                 String tags[] = obj.getString("tags").split(",\\s*");
                 String authorName = obj.getString("user");
                 URL pageUrl = null, imageURL = null;
@@ -357,7 +357,7 @@ public class Card {
         pixabayImage.setProperty("pixabayPageURL", this.pixabayPageURL.toString());
         pixabayImage.setProperty("pixabayImageURL", this.pixabayImageURL.toString());
         pixabayImage.setProperty("pixabayAuthorName", this.pixabayAuthorName);
-        pixabayImage.setProperty("cardImageURL", this.cardImageURL.toString());
+        pixabayImage.setProperty("cardImageURL", this.cardImageURL != null ? this.cardImageURL.toString() : null);
         pixabayImage.setProperty("probability", this.probability);
 
         DatastoreService datastore = DatastoreGetter.getDatastore();
