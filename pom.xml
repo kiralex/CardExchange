@@ -131,15 +131,15 @@
             <version>1.0.0</version>
         </dependency>
 
-    <!-- https://mvnrepository.com/artifact/org.apache.taglibs/taglibs-standard-impl -->
-    <dependency>
-      <groupId>org.apache.taglibs</groupId>
-      <artifactId>taglibs-standard-impl</artifactId>
-      <version>1.2.1</version>
-    </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.taglibs/taglibs-standard-impl -->
+        <dependency>
+            <groupId>org.apache.taglibs</groupId>
+            <artifactId>taglibs-standard-impl</artifactId>
+            <version>1.2.1</version>
+        </dependency>
 
 
-  </dependencies>
+    </dependencies>
 
     <repositories>
         <repository>

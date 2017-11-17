@@ -5,9 +5,11 @@ import com.derniamepoirier.CardGeneration.PixabayAPIExceptions.PixabayIncorrectP
 import com.derniamepoirier.CardGeneration.PixabayAPIExceptions.PixabayPageOutValidRangeException;
 import com.derniamepoirier.CardGeneration.PixabayAPIExceptions.PixabayResponseCodeException;
 import com.derniamepoirier.Utils.DatastoreGetter;
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.TaskOptions;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.logging.Logger;
 
 public class CardGenerator {
@@ -42,11 +44,18 @@ public class CardGenerator {
 
                 Card[] cardsTemp = Card.fromPixabayRespond(obj, nbCard-nbGenerated);
 
+
+
                 for(int i = 0; i < cardsTemp.length && nbGenerated < nbCard; i++){
                     Card c = cardsTemp[i];
                     cards[nbGenerated] = c;
-                    c.generateCardImage();
-                    c.saveToStore();
+
+                    if(c != null) {
+                        c.saveToStore();
+                        Queue queue = QueueFactory.getDefaultQueue();
+                        queue.add(TaskOptions.Builder.withUrl("/buildImage").param("cardId", Long.toString(c.getId())));
+                    }
+                    else log.warning("Card id null at iteration " + nbIterations + ". Total Generated = " + nbGenerated);
 
                     nbGenerated++;
                 }
@@ -54,13 +63,7 @@ public class CardGenerator {
                 nbIterations++;
             } catch (PixabayPageOutValidRangeException e) {
                 pageOutOfRange = true;
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-//            catch (IOException e) {
-//                log.severe("Generate card image failed");
-//                e.printStackTrace();
-//            }
 
         }
 

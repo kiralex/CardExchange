@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Locale;
 import java.util.logging.Logger;
 
 
@@ -43,9 +44,19 @@ public class PixabayFetcher {
             this.lang = lang;
         }
 
+        /**
+         * Return the entire language name
+         * @return
+         */
         @Override
         public String toString() {
-            return this.lang;
+            Locale loc = new Locale(this.lang);
+            return loc.getDisplayLanguage(loc);
+
+        }
+
+        public String getCode(){
+            return lang;
         }
     }
 
@@ -96,6 +107,11 @@ public class PixabayFetcher {
         Category(String category){
             this.category = category;
         }
+
+        @Override
+        public String toString() {
+            return this.category;
+        }
     }
 
     /**
@@ -140,15 +156,15 @@ public class PixabayFetcher {
     public enum EditorChoice implements PixabayAPIOptions {
         ENABLED("true"), DISABLED("false");
 
-        final private String safeSearch;
+        final private String editorChoice;
 
-        EditorChoice(String safeSearch){
-            this.safeSearch = safeSearch;
+        EditorChoice(String editorChoice){
+            this.editorChoice = editorChoice;
         }
 
         @Override
         public String toString() {
-            return this.safeSearch;
+            return this.editorChoice;
         }
     }
 
@@ -214,7 +230,7 @@ public class PixabayFetcher {
         try {
             URIBuilder uriBuilder = new URIBuilder("https://pixabay.com/api/");
 
-            uriBuilder.addParameter("lang", lang.toString())
+            uriBuilder.addParameter("lang", lang.getCode())
                     .addParameter("image_type", imageType.toString())
                     .addParameter("orientation", orientation.toString())
                     .addParameter("category", category.toString())
@@ -223,7 +239,8 @@ public class PixabayFetcher {
                     .addParameter("order", order.toString())
                     .addParameter("page", String.valueOf(page))
                     .addParameter("per_page", String.valueOf(nbResultsPerPage))
-                    .addParameter("key", PIXABAY_API_KEY);
+                    .addParameter("key", PIXABAY_API_KEY)
+                    .addParameter("q", query.toString());
 
             URL url = uriBuilder.build().toURL();
             log.info("API request : " + url.toString());

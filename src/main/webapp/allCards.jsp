@@ -21,16 +21,18 @@
             </div>
         </c:if>
 
-
         <div class="row mb-3">
             <c:if test="${not empty cards}">
                 <c:forEach begin="0" end="${fn:length(cards)-1}" var="i">
                     <div class="card col-md-3">
-                        <div class="card-header px-0 py-0 my-1 pb-1 text-center font-weight-bold">{${fn:join(cards[i].getTags(), ", ")}}
+                        <div class="card-header px-0 py-0 my-1 pb-1 text-center font-weight-bold">
+                            {${fn:join(cards[i].getTags(), ", ")}}
                         </div>
-                        <div class="card-body row">
-                            <img src="${cards[i].getPixabayImageURL()}" class="col-sm-12 my-auto mb-2" height="200px"
-                            />
+                        <div class="card-body row text-center">
+                            <div class="col-sm-12 my-auto mb-2 align-bottom">
+                                <img src="${cards[i].getPixabayImageURL()}" style="object-fit: contain;width: 100%; height: 100%;"
+                                />
+                            </div>
                             <h5 class="card-subtitle text-muted col-sm-12 my-auto">#${cards[i].getId()}</h5>
                         </div>
                     </div>
