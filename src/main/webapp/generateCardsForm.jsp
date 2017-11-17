@@ -1,4 +1,6 @@
 <%@ page import="com.derniamepoirier.CardGeneration.PixabayFetcher" %>
+<%@ page import="java.util.logging.Logger" %>
+<%@ page import="com.derniamepoirier.CardGeneration.Card" %>
 <%@page contentType="text/html" pageEncoding="UTF-8" language="java" %>
 
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
@@ -22,7 +24,6 @@ request.setAttribute("langs", PixabayFetcher.Lang.values());
 
 
     <jsp:body>
-        <%--<c:if test="${isAdmin}">--%>
             <h1>Choisissez les critères pour choisir le type de carte à rajouter</h1>
 
             <form method="post" action ="/generateCard">
@@ -47,8 +48,12 @@ request.setAttribute("langs", PixabayFetcher.Lang.values());
                 <div class="form-group row">
                     <label for="formControlSelectLang" class="col-sm-2 col-form-label">Séléctionner la langue</label>
                     <select class="form-control col-sm-10 text-capitalize" id="formControlSelectLang" name="selectLang">
-                        <c:forEach items="${ langs }" var="lang">
-                            <option class="text-capitalize" value="${lang}">${lang.toString()}</option>
+                        <c:forEach          items="${ langs }" var="lang">
+                            <option class="text-capitalize" value="${lang}"
+                                    <c:if test = "${lang.getCode() == 'fr'}">
+                                        selected
+                                    </c:if>
+                            >${lang.toString()}</option>
                         </c:forEach>
                     </select>
                 </div>
@@ -62,7 +67,11 @@ request.setAttribute("langs", PixabayFetcher.Lang.values());
                             <c:forEach items="${ imageTypes }" var="imageType">
                                 <div class="form-check">
                                     <label class="form-check-label text-capitalize">
-                                        <input class="form-check-input" type="radio" name="imageTypeOptions" id="imageType_${imageType}" value="${imageType}">${imageType.toString()}
+                                        <input class="form-check-input" type="radio" name="imageTypeOptions"
+                                               <c:if test="${imageType.toString() == 'all'}">
+                                                 checked="true"
+                                                </c:if>
+                                               id="imageType_${imageType}" value="${imageType}">${imageType.toString()}
                                     </label>
                                 </div>
                             </c:forEach>
@@ -78,7 +87,11 @@ request.setAttribute("langs", PixabayFetcher.Lang.values());
                             <c:forEach items="${ orientations }" var="orientation">
                                 <div class="form-check">
                                     <label class="form-check-label text-capitalize">
-                                        <input class="form-check-input" type="radio" name="orientationOptions" id="orientation_${orientation}" value="${orientation}">${orientation.toString()}
+                                        <input class="form-check-input" type="radio" name="orientationOptions" id="orientation_${orientation}" value="${orientation}"
+                                            <c:if test="${orientation.toString() == 'all'}">
+                                                   checked="true"
+                                            </c:if>
+                                        >${orientation.toString()}
                                     </label>
                                 </div>
                             </c:forEach>
@@ -104,7 +117,11 @@ request.setAttribute("langs", PixabayFetcher.Lang.values());
                             <c:forEach items="${ orders }" var="order">
                                 <div class="form-check">
                                     <label class="form-check-label text-capitalize">
-                                        <input class="form-check-input" type="radio" name="orderOptions" id="order_${order}" value="${order}">${order.toString()}
+                                        <input class="form-check-input" type="radio" name="orderOptions"
+                                        <c:if test="${order.toString() == 'popular'}">
+                                               checked="true"
+                                        </c:if>
+                                               id="order_${order}" value="${order}">${order.toString()}
                                     </label>
                                 </div>
                             </c:forEach>
@@ -120,7 +137,12 @@ request.setAttribute("langs", PixabayFetcher.Lang.values());
                             <c:forEach items="${ safeSearch }" var="safeSearch">
                                 <div class="form-check">
                                     <label class="form-check-label text-capitalize">
-                                        <input class="form-check-input" type="radio" name="safeSearchOptions" id="safeSearch_${safeSearch}" value="${safeSearch}">${safeSearch.toString()}
+                                        <input class="form-check-input" type="radio" name="safeSearchOptions"
+
+                                        <c:if test="${safeSearch.toString() == 'true'}">
+                                               checked="true"
+                                        </c:if>
+                                               id="safeSearch_${safeSearch}" value="${safeSearch}">${safeSearch.toString()}
                                     </label>
                                 </div>
                             </c:forEach>
@@ -136,7 +158,12 @@ request.setAttribute("langs", PixabayFetcher.Lang.values());
                             <c:forEach items="${ editorChoices }" var="editorChoice">
                                 <div class="form-check">
                                     <label class="form-check-label text-capitalize">
-                                        <input class="form-check-input" type="radio" name="editorChoiceOptions" id="editorChoice_${editorChoice}" value="${editorChoice}">${editorChoice.toString()}
+                                        <input class="form-check-input" type="radio" name="editorChoiceOptions"
+                                            <c:if test="${editorChoice.toString() == 'false'}">
+                                                   checked="true"
+                                            </c:if>
+
+                                               id="editorChoice_${editorChoice}" value="${editorChoice}">${editorChoice.toString()}
                                     </label>
                                 </div>
                             </c:forEach>
@@ -150,19 +177,6 @@ request.setAttribute("langs", PixabayFetcher.Lang.values());
                     </div>
                 </div>
             </form>
-        <%--</c:if>--%>
-
-        <%--<c:if test="${!isAdmin}">--%>
-            <%--<c:redirect url="error.jsp">--%>
-                <%--<c:param--%>
-                        <%--name="errorMessage"--%>
-                        <%--value="needAdministrateur"></c:param>--%>
-            <%--</c:redirect>--%>
-        <%--</c:if>--%>
-
-
-
-
     </jsp:body>
 
 
