@@ -54,7 +54,7 @@
 
                     <c:if test="${isAdmin}">
                         <li class="nav-item active">
-                            <a class="nav-link" href="generateCards.jsp">Générer des Cartes</a>
+                            <a class="nav-link" href="generateCardsForm.jsp">Générer des Cartes</a>
                         </li>
                     </c:if>
 

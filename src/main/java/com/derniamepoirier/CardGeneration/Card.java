@@ -357,7 +357,7 @@ public class Card {
         pixabayImage.setProperty("pixabayPageURL", this.pixabayPageURL.toString());
         pixabayImage.setProperty("pixabayImageURL", this.pixabayImageURL.toString());
         pixabayImage.setProperty("pixabayAuthorName", this.pixabayAuthorName);
-        pixabayImage.setProperty("cardImageURL", this.cardImageURL);
+        pixabayImage.setProperty("cardImageURL", this.cardImageURL.toString());
         pixabayImage.setProperty("probability", this.probability);
 
         DatastoreService datastore = DatastoreGetter.getDatastore();
@@ -441,10 +441,14 @@ public class Card {
         cardGraphics.drawString(""+this.id, 28, 595);
 
 
+        // Add the card url
+        this.cardImageURL = new URL("https://storage.googleapis.com/cardexchangemaven.appspot.com/"+this.id+".jpg");
+
         GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/jpeg").acl("public-read").build();
         GcsService service = GcsServiceFactory.createGcsService();
         GcsFilename name = new GcsFilename("cardexchangemaven.appspot.com", this.id+".jpg");
         Image image = ImagesServiceFactory.makeImage(this.getBytes(bfImg));
+
 
         ByteBuffer buff =  ByteBuffer.wrap(image.getImageData());
         service.createOrReplace(name, opt, buff);
