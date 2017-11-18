@@ -23,7 +23,7 @@ public class DrawCardsServlet extends HttpServlet {
             request.setAttribute("nbPoints", nbPoints);
             request.setAttribute("nbCardsMax", nbCardsMax);
 
-            if(nbCardsMax > 0 && request.getParameter("nbCardsToDraw") != null){
+            if(nbCardsMax > 0 && request.getParameter("nbCardsToDraw") != null && !request.getParameter("nbCardsToDraw").equals("")){
                 int nbCardsToDraw = Integer.valueOf(request.getParameter("nbCardsToDraw"));
 
                 if(nbCardsToDraw <= 0){
@@ -60,6 +60,7 @@ public class DrawCardsServlet extends HttpServlet {
 
 
                 request.setAttribute("cards", cards);
+                request.setAttribute("nbPoints", nbPoints-nbCardsToDraw);
             }
 
             RequestDispatcher rd = request.getRequestDispatcher("drawCards.jsp");

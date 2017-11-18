@@ -15,8 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 
-@WebServlet(name = "generationCardServlet", value = "/generateCard")
-public class generationCardServlet extends HttpServlet {
+@WebServlet(name = "GenerationCardServlet", value = "/generateCard")
+public class GenerationCardServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         String query = request.getParameter("query");

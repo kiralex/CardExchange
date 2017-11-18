@@ -73,7 +73,7 @@ public class UserManagment {
 
         Entity entity = new Entity("UserInfo", userId);
         entity.setProperty("nextPointEarnDate", DateUtil.serializeDate(new Date()));
-        entity.setProperty("nbPoints", 100l);
+        entity.setProperty("nbPoints", 300l);
 
         datastore.put(entity);
         return entity;

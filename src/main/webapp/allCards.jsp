@@ -24,7 +24,7 @@
         <div class="row mb-3">
             <c:if test="${not empty cards}">
                 <c:forEach begin="0" end="${fn:length(cards)-1}" var="i">
-                    <div class="card col-md-3">
+                    <div class="card col-md-4">
                         <div class="card-header px-0 py-0 my-1 pb-1 text-center font-weight-bold">
                             {${fn:join(cards[i].getTags(), ", ")}}
                         </div>
