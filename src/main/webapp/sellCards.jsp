@@ -10,15 +10,15 @@
       Toutes les cartes
     </jsp:attribute>
 
-
     <jsp:body>
-        <h1 class="mb-2">Mes cartes</h1>
+        <h1 class="mb-2">Vendre des cartes</h1>
+        <h5>Veuillez sélectionner le nombre de cartes à vendre. Chaque étoile sur une carte vous rapportera 1 points.</h5>
 
-        <div class="row mb-3">
+        <form method="POST" action="" class="form-inline">
             <c:if test="${not empty cards}">
+                <div class="row mb-3">
                 <c:set var="keyCard" value="${cards.keySet().toArray()}"></c:set>
                 <c:forEach begin="0" end="${fn:length(keyCard)-1}" var="i">
-
                     <c:set var="card" value="${keyCard[i]}"></c:set>
                     <c:set var="nbInstance" value="${cards.get(keyCard[i])}"></c:set>
 
@@ -39,11 +39,20 @@
                                 </c:choose>
                             </div>
                             <h5 class="card-subtitle text-muted col-sm-12 my-auto">#${card.getId()}</h5>
-                            <strong class="card-subtitle text-right col-sm-12">x ${nbInstance}</strong>
+                            <div class="card-subtitle form-group col-sm-12 mt-1">
+                                <label for="card-${card.getId()}" class="font-weight-bold" >Quantité : </label>
+                                <input type="number" value=0 min=0 max=${nbInstance} class="form-control ml-2" name="card-${card.getId()}" id="card-${card.getId()}"/>
+                                <span class="ml-1">sur ${nbInstance}</span>
+                            </div>
                         </div>
                     </div>
                 </c:forEach>
+
+                </div>
+                <div class="form-group row">
+                    <button type="submit" class="form-control btn btn-primary">Valider</button>
+                </div>
             </c:if>
-        </div>
+        </form>
     </jsp:body>
 </t:userpage>
