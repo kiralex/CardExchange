@@ -5,6 +5,7 @@ import com.derniamepoirier.Utils.DatastoreGetter;
 import com.google.appengine.api.datastore.*;
 import com.google.appengine.api.images.Image;
 import com.google.appengine.api.images.*;
+import com.google.appengine.api.utils.SystemProperty;
 import com.google.appengine.tools.cloudstorage.GcsFileOptions;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsService;
@@ -419,19 +420,29 @@ public class Card {
         rect = new RoundRectangle2D.Float(275, 570, 125, 30, 12, 12);
         addSquareAndTextIntoGraphics2D(cardGraphics, "id : " + this.id, rect,colorBgCard, Color.WHITE, fontText);
 
-        // Add the card url
-        this.cardImageURL = new URL("https://storage.googleapis.com/cardexchangemaven.appspot.com/"+this.id+".jpg");
+//        // Add the card url
+//        this.cardImageURL = new URL("https://storage.googleapis.com/cardexchangemaven.appspot.com/"+this.id+".jpg");
       
         GcsFileOptions opt = new GcsFileOptions.Builder().mimeType("image/jpeg").acl("public-read").build();
         GcsService service = GcsServiceFactory.createGcsService();
         GcsFilename name = new GcsFilename("cardexchangemaven.appspot.com", this.id+".jpg");
         Image image = ImagesServiceFactory.makeImage(this.getBytes(bfImg));
 
-
         ByteBuffer buff =  ByteBuffer.wrap(image.getImageData());
         service.createOrReplace(name, opt, buff);
 
-        this.cardImageURL = new URL("https://storage.googleapis.com/cardexchangemaven.appspot.com/" +this.id+".jpg");
+        if(SystemProperty.environment.value() == SystemProperty.Environment.Value.Production){
+            this.cardImageURL = new URL("https://storage.googleapis.com/" + name.getBucketName() + "/" + name.getObjectName());
+        }else{
+            ImagesService imagesService = ImagesServiceFactory.getImagesService();
+            this.cardImageURL = new URL(imagesService.getServingUrl(ServingUrlOptions.Builder.withGoogleStorageFileName("/gs/" + name.getBucketName() + "/" + name.getObjectName()) ));
+
+        }
+
+
+
+
+
         this.saveToStore();
     }
 
@@ -482,7 +493,7 @@ public class Card {
      * @return BufferedImage
      * @throws IOException
      */
-    public BufferedImage urlImageToBufferedImage (URL imageUrl) throws IOException {
+    public BufferedImage urlImageToBufferedImage (URL imageUrl) throws IOException, DatastoreGetter.DataStoreNotAvailableException {
         String tempName = this.getId() + "_temp.png";
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         InputStream inputStream = imageUrl.openStream();
@@ -519,7 +530,14 @@ public class Card {
 
 
         URL pngImg = new URL("https://storage.googleapis.com/cardexchangemaven.appspot.com/"+tempName);
-        BufferedImage newImg = ImageIO.read(pngImg);
+        BufferedImage newImg = null;
+
+        if(SystemProperty.environment.value() == SystemProperty.Environment.Value.Production){
+            newImg = ImageIO.read(new URL("https://storage.googleapis.com/" + name.getBucketName() + "/" + name.getObjectName()));
+        }else{
+            newImg = ImageIO.read(new URL(imagesService.getServingUrl(ServingUrlOptions.Builder.withGoogleStorageFileName("/gs/" + name.getBucketName() + "/" + name.getObjectName()))));
+        }
+
 
         service.delete(name);
 
@@ -651,7 +669,7 @@ public class Card {
     }
 
 
-    public void addImageAndStarToCard (Graphics2D g, Color colorBgCard) throws IOException {
+    public void addImageAndStarToCard (Graphics2D g, Color colorBgCard) throws IOException, DatastoreGetter.DataStoreNotAvailableException {
         BufferedImage mig = ImageIO.read(new File("newBack.png"));
         g.drawImage(mig, 0, 0, 400, 600, null);
 
