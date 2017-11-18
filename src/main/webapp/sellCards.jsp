@@ -7,14 +7,22 @@
 
 <t:userpage>
     <jsp:attribute name="title">
-      Toutes les cartes
+        Vendre des cartes
     </jsp:attribute>
 
     <jsp:body>
+
+        <c:if test="${not empty sellOK}">
+            <div class="alert alert-success" role="alert">
+                <span class="alert-heading"><span class="badge badge-success">Succès !</span></span>
+                <h6>Vos cartes ont bien été vendues. Vous avez gagné <strong>${sellOK} points</strong>.</h6>
+            </div>
+        </c:if>
+
         <h1 class="mb-2">Vendre des cartes</h1>
         <h5>Veuillez sélectionner le nombre de cartes à vendre. Chaque étoile sur une carte vous rapportera 1 points.</h5>
 
-        <form method="POST" action="" class="form-inline">
+        <form method="GET" action="" class="form-inline">
             <c:if test="${not empty cards}">
                 <div class="row mb-3">
                 <c:set var="keyCard" value="${cards.keySet().toArray()}"></c:set>

@@ -24,7 +24,8 @@
 
 
     <jsp:body>
-        <h1>Choisissez les critères pour choisir le type de carte à rajouter</h1>
+        <h1>Choisissez les critères pour les cartes à générer.</h1>
+        <h5>Les images sont Obtenues à partir de l'API de Pixabay. L'ensemble des images est sous licence CC-0.</h5>
 
         <form method="post" action ="/generateCard">
 

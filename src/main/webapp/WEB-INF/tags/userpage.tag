@@ -35,7 +35,7 @@
 
     <jsp:attribute name="header">
         <nav class="navbar navbar-expand-sm navbar-dark bg-dark mb-3 ">
-            <a class="navbar-brand" style="color: #ff5c5c;" href="">
+            <a class="navbar-brand" style="color: #ff5c5c;" href="/">
                 <img src="/logo.svg" width="30" height="30" class="d-inline-block align-top" alt="">
                 <span class="mx-0 my-0 px-0 py-0" style="font-family: Yellowtail; line-height: normal; font-size:1.55rem; ">Card Exchange</span>
             </a>
@@ -63,6 +63,13 @@
                         </li>
                     </c:if>
 
+
+                    <c:if test="${isConnected}" >
+                        <li class="nav-item active">
+                            <a class="nav-link" href="sellCards">Vendre des cartes</a>
+                        </li>
+                    </c:if>
+
                     <c:if test="${isConnected}" >
                         <li class="nav-item active">
                             <a class="nav-link" href="myCards">Mes cartes</a>
@@ -86,7 +93,7 @@
 
                     <c:choose>
                         <c:when test="${isConnected}">
-                            <span class="navbar-text mr-2">Utilisateur : ${userEmail}</span>
+                            <span class="navbar-text mr-2">${userEmail}</span>
                             <a class="btn align-middle btn-danger" href="${logoutURL}" >Déconnexion</a>
                         </c:when>
                         <c:otherwise>

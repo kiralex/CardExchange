@@ -80,12 +80,16 @@ public class CardAssignmentHelper {
         return cards;
     }
 
-    public static void assignCardInstanceToUser(Card card) throws NullCardPointerException, DatastoreGetter.DataStoreNotAvailableException {
+    public static void assignCardInstanceToUser(Card card) throws NullCardPointerException, DatastoreGetter.DataStoreNotAvailableException, UserManagment.UserNotLoggedInException {
         if(card == null)
             throw new NullCardPointerException("La carte passée en paramètre est nulle");
 
         UserService userService = UserManagment.getUserService();
         DatastoreService datastore = DatastoreGetter.getDatastore();
+
+
+        if(!userService.isUserLoggedIn())
+            throw new UserManagment.UserNotLoggedInException("Utilisateur non connecté");
 
         long cardId = card.getId();
         String userId = userService.getCurrentUser().getUserId();
@@ -113,7 +117,54 @@ public class CardAssignmentHelper {
         cardAssignment.setProperty("cardId", cardId);
         cardAssignment.setProperty("nbInstances", nbInstances+1);
         datastore.put(cardAssignment);
+    }
+
+    public static long sellCardInstance(long cardId, long nbInstancesToSell) throws DatastoreGetter.DataStoreNotAvailableException, UserManagment.UserNotLoggedInException {
+
+        UserService userService = UserManagment.getUserService();
+        DatastoreService datastore = DatastoreGetter.getDatastore();
+
+        if(!userService.isUserLoggedIn())
+            throw new UserManagment.UserNotLoggedInException("Utilisateur non connecté");
+
+        String userId = userService.getCurrentUser().getUserId();
+
+        ArrayList<Query.Filter> filters = new ArrayList<>();
+        filters.add(new Query.FilterPredicate("userId", Query.FilterOperator.EQUAL, userId));
+        filters.add(new Query.FilterPredicate("cardId", Query.FilterOperator.EQUAL, cardId));
+
+        Query query = new Query("CardAssignment")
+                .setFilter(
+                        new Query.CompositeFilter(Query.CompositeFilterOperator.AND, filters));
+
+        PreparedQuery pq = datastore.prepare(query);
+        Entity cardAssignment = pq.asSingleEntity();
+
+        long oldNumberOfInstances;
+
+        try {
+            oldNumberOfInstances = (Long) cardAssignment.getProperty("nbInstances");
+        }catch (NullPointerException e){
+            return 0;
+        }
+
+        long oldMinusNb = Math.min(oldNumberOfInstances, oldNumberOfInstances-nbInstancesToSell);
+        long valueToStore = Math.max(0, oldMinusNb);
+        long nbCardReallySelled = (oldMinusNb >=  0) ? nbInstancesToSell : -oldMinusNb;
+        long nbPointsToEarn = ((long) Math.ceil(Card.restoreFromStore(cardId).getProbability()*10) )* nbCardReallySelled;
 
 
+        if(valueToStore > 0 ){
+            cardAssignment.setProperty("userId", userId);
+            cardAssignment.setProperty("cardId", cardId);
+            cardAssignment.setProperty("nbInstances", valueToStore);
+            datastore.put(cardAssignment);
+        }else{
+            datastore.delete(cardAssignment.getKey());
+        }
+
+        UserManagment.earnPointsWithSell(nbPointsToEarn);
+
+        return nbPointsToEarn;
     }
 }

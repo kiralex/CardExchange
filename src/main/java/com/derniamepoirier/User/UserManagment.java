@@ -103,6 +103,20 @@ public class UserManagment {
     }
 
     /**
+     * Method which increment user number of points
+     * @throws UserNotLoggedInException Error throwed when user is not connected
+     * @throws DatastoreGetter.DataStoreNotAvailableException Error throwed when {@link com.google.api.client.util.store.DataStore} is not available
+     */
+    public static void earnPointsWithSell(long nbPoints) throws UserNotLoggedInException, DatastoreGetter.DataStoreNotAvailableException{
+        Entity entity = UserManagment.getUserInfos();
+
+        entity.setProperty("nbPoints", (Long) entity.getProperty("nbPoints") + nbPoints);
+
+        DatastoreService datastore = DatastoreGetter.getDatastore();
+        datastore.put(entity);
+    }
+
+    /**
      * Method to make a user buy cards if he have a sufficient number of points
      * @throws UserNotLoggedInException Error throwed when user is not connected
      * @throws DatastoreGetter.DataStoreNotAvailableException Error throwed when {@link com.google.api.client.util.store.DataStore} is not available

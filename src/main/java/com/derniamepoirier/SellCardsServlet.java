@@ -12,19 +12,33 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.HashMap;
 
 @WebServlet(name = "SellCardsServlet", value="sellCards")
 public class SellCardsServlet extends HttpServlet {
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-    }
-
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
+            boolean sell = false;
+            Enumeration<String> paramNames = request.getParameterNames();
+            long totalEarnedPoints = 0;
+            while (paramNames.hasMoreElements()) {
+                String param = paramNames.nextElement();
+                if(param.matches("card-[0-9]*")){
+                    long cardId = Long.parseLong(param.substring(5, param.length()));
+                    long quantity = Long.parseLong(request.getParameter(param));
+                    if(quantity > 0) {
+                        sell = true;
+                        totalEarnedPoints += CardAssignmentHelper.sellCardInstance(cardId, quantity);
+                    }
+                }
+            }
+
             HashMap<Card, Long> cards = CardAssignmentHelper.getAllCards();
 
             request.setAttribute("cards", cards);
+            if(sell)
+                request.setAttribute("sellOK", totalEarnedPoints);
             RequestDispatcher rd = request.getRequestDispatcher("sellCards.jsp");
             rd.forward(request,response);
         } catch (UserManagment.UserNotLoggedInException e) {

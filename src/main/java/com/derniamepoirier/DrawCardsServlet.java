@@ -23,7 +23,7 @@ public class DrawCardsServlet extends HttpServlet {
             request.setAttribute("nbPoints", nbPoints);
             request.setAttribute("nbCardsMax", nbCardsMax);
 
-            if(nbCardsMax > 0 && request.getParameter("nbCardsToDraw") != null && !request.getParameter("nbCardsToDraw").equals("")){
+            if(nbCardsMax > 0 && request.getParameter("nbCardsToDraw") != null && request.getParameter("nbCardsToDraw").matches("[0-9]*")){
                 int nbCardsToDraw = Integer.valueOf(request.getParameter("nbCardsToDraw"));
 
                 if(nbCardsToDraw <= 0){

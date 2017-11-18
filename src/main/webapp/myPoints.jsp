@@ -33,12 +33,12 @@
         </h4>
         <c:choose>
             <c:when test="${canEarnPoints == true}">
-                <h3>
+                <h5>
                     Vous avez débloqué ${UserManagment.NB_POINTS_PER_PERIOD} points. Pour les obtenir, <a href="/earnPoints" class="btn btn-success btn-sm">cliquez ici</a>
-                </h3>
+                </h5>
             </c:when>
             <c:otherwise>
-                <h4>
+                <h5>
                     Il est encore trop tôt. Vous pourrez obtenir vos points dans <strong id="countdown"></strong>
                     <script>
                         var date = new Date();
@@ -46,7 +46,18 @@
                             $(this).html(event.strftime('%Hh %Mmin %Ssec'));
                         });
                     </script>
-                </h4>
+
+                </h5>
+                <h5>
+                    <c:if test="${not empty admin}">
+                        Comme vous êtes administrateur, vous pouvez vous ajouter des points manuellement.
+                        <form class="form-inline" method="GET" action="earnPoints">
+                            <label for="nbPoints">Nombre de points :</label>
+                            <input type="number" class="form-control ml-2" min="0" id="nbPoints" name="nbPoints"/>
+                            <input type="submit" class="btn btn-primary ml-2"></input>
+                        </form>
+                    </c:if>
+                </h5>
             </c:otherwise>
         </c:choose>
     </jsp:body>

@@ -15,7 +15,11 @@ import java.io.IOException;
 public class EarnPointsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            UserManagment.earnPoints();
+            String nbPointsS = request.getParameter("nbPoints");
+            if(UserManagment.getUserService().isUserAdmin() && nbPointsS != null && nbPointsS.matches("[0-9]*"))
+                    UserManagment.earnPointsWithSell(Long.parseLong(nbPointsS));
+            else
+                UserManagment.earnPoints();
             RequestDispatcher rd = request.getRequestDispatcher("/myPoints");
             rd.forward(request,response);
 

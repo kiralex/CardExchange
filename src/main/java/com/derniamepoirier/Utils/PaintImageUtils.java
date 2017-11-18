@@ -262,7 +262,7 @@ public class PaintImageUtils {
 
         BufferedImage starImg = ImageIO.read(new File("star_point.png"));
 
-        int nbStar = Math.toIntExact(Math.round(10 * probability));
+        int nbStar = (int) Math.ceil(10.0 * probability);
 
         // Add the star to the image
         for (int i = 0; i < nbStar; i++)
