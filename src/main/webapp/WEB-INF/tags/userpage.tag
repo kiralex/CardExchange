@@ -57,6 +57,12 @@
                         </li>
                     </c:if>
 
+                    <c:if test="${isConnected}" >
+                        <li class="nav-item active">
+                            <a class="nav-link" href="drawCards">Tirer des cartes</a>
+                        </li>
+                    </c:if>
+
                     <c:if test="${isAdmin}">
                         <li class="nav-item active">
                             <a class="nav-link" href="generateCardsForm.jsp">Générer des Cartes</a>
@@ -65,10 +71,10 @@
 
                 </ul>
 
-                <form class="form-inline mr-sm-3">
-                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-                </form>
+                <%--<form class="form-inline mr-sm-3">--%>
+                    <%--<input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">--%>
+                    <%--<button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>--%>
+                <%--</form>--%>
 
                 <form class="form-inline">
 

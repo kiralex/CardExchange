@@ -4,5 +4,10 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <t:userpage>
-    This is an empty user page !
+    <jsp:attribute name="title">
+      Mes points
+    </jsp:attribute>
+    <jsp:body>
+        This is an empty user page !
+    </jsp:body>
 </t:userpage>
