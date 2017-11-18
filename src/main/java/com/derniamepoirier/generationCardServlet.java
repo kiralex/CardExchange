@@ -62,7 +62,7 @@ public class generationCardServlet extends HttpServlet {
 
         try {
             Card[] cards = CardGenerator.generate(query, optionsTab, nbCards);
-            request.setAttribute("nbCards", nbCards);
+            request.setAttribute("nbCards", cards.length);
             request.setAttribute("cards", cards);
         } catch (PixabayAPIExceptions.PixabayIncorrectParameterException | PixabayAPIExceptions.PixabayApiKeyMissingException | PixabayAPIExceptions.PixabayResponseCodeException e) {
             request.setAttribute("errorMessage", "Erreur lors de la récupération des images");

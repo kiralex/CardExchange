@@ -10,6 +10,7 @@ import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 public class CardGenerator {
@@ -34,7 +35,8 @@ public class CardGenerator {
         int nbGenerated = 0;
         int nbIterations = 1;
         boolean pageOutOfRange = false;
-        Card cards[] = new Card[nbCard];
+
+        ArrayList<Card> cards = new ArrayList<Card>();
 
 
         while(!pageOutOfRange && nbGenerated < nbCard) {
@@ -48,7 +50,7 @@ public class CardGenerator {
 
                 for(int i = 0; i < cardsTemp.length && nbGenerated < nbCard; i++){
                     Card c = cardsTemp[i];
-                    cards[nbGenerated] = c;
+                    cards.add(c);
 
                     if(c != null) {
                         c.saveToStore();
@@ -68,6 +70,6 @@ public class CardGenerator {
         }
 
         log.info(nbGenerated + " cards generated from iteration on " + nbIterations + " iterations." );
-        return cards;
+        return cards.toArray(new Card[cards.size()]);
     }
 }
