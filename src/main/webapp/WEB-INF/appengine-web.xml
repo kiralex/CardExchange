@@ -11,6 +11,8 @@
         <include path="/configuration/**" />
         <include path="/schemas/**" />
         <include path="/**.png" />
+        <include path="/**.ico" />
+        <include path="/**.svg" />
     </resource-files>
     <sessions-enabled>true</sessions-enabled>
 </appengine-web-app>

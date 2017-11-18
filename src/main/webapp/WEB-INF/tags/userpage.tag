@@ -35,9 +35,15 @@
 
     <jsp:attribute name="header">
         <nav class="navbar navbar-expand-sm navbar-dark bg-dark mb-3 ">
-            <a class="navbar-brand" href="/">CardExchange</a>
+            <a class="navbar-brand" style="color: #ff5c5c;" href="">
+                <img src="/logo.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+                <span class="mx-0 my-0 px-0 py-0" style="font-family: Yellowtail; line-height: normal; font-size:1.55rem; ">Card Exchange</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav mr-auto">
+                <ul class="navbar-nav mr-auto" >
                     <li class="nav-item">
                         <a class="nav-link active" href="/"><i class="fa fa-home" aria-hidden="true"></i> Accueil</a>
                     </li>
