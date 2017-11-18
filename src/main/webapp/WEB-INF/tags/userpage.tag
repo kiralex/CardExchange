@@ -63,6 +63,12 @@
                         </li>
                     </c:if>
 
+                    <c:if test="${isConnected}" >
+                        <li class="nav-item active">
+                            <a class="nav-link" href="myCards">Mes cartes</a>
+                        </li>
+                    </c:if>
+
                     <c:if test="${isAdmin}">
                         <li class="nav-item active">
                             <a class="nav-link" href="generateCardsForm.jsp">Générer des Cartes</a>

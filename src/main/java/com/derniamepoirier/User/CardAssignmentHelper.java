@@ -2,13 +2,12 @@ package com.derniamepoirier.User;
 
 import com.derniamepoirier.CardGeneration.Card;
 import com.derniamepoirier.Utils.DatastoreGetter;
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.PreparedQuery;
-import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.*;
 import com.google.appengine.api.users.UserService;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class CardAssignmentHelper {
@@ -49,6 +48,36 @@ public class CardAssignmentHelper {
         }catch (NullPointerException e){
             return 0;
         }
+    }
+
+    public static HashMap<Card, Long> getAllCards() throws DatastoreGetter.DataStoreNotAvailableException, UserManagment.UserNotLoggedInException {
+        UserService userService = UserManagment.getUserService();
+        DatastoreService datastore = DatastoreGetter.getDatastore();
+
+
+        if(!userService.isUserLoggedIn())
+            throw new UserManagment.UserNotLoggedInException("Utilisateur non connecté");
+        String userId = userService.getCurrentUser().getUserId();
+
+
+
+        Query query = new Query("CardAssignment")
+                .setFilter(new Query.FilterPredicate("userId", Query.FilterOperator.EQUAL, userId));
+
+        PreparedQuery pq = datastore.prepare(query);
+        List<Entity> cardAssignment = pq.asList(FetchOptions.Builder.withDefaults());
+
+        HashMap<Card, Long> cards = new HashMap<Card, Long>();
+        int i = 0;
+        for (Entity entity: cardAssignment ) {
+            long cardId = (Long) entity.getProperty("cardId");
+            Long nbInstances = (Long) entity.getProperty("nbInstances");
+            Card c = Card.restoreFromStore(cardId);
+            cards.put(c, nbInstances);
+            i++;
+        }
+
+        return cards;
     }
 
     public static void assignCardInstanceToUser(Card card) throws NullCardPointerException, DatastoreGetter.DataStoreNotAvailableException {
