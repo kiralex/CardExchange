@@ -39,10 +39,6 @@ It is needed to create cards
 
     mvn appengine:update
 
-## Testing
-
-    mvn verify
-
 ## Updating to latest Artifacts
 
 An easy way to keep your projects up to date is to use the maven [Versions plugin][versions-plugin].
