@@ -12,7 +12,7 @@
 
 
     <jsp:body>
-        <h1 class="mb-2">Liste des cartes</h1>
+        <h1 class="mb-2">Toutes les cartes</h1>
 
         <c:if test="${not empty param.page && param.page>nbPages}">
             <div class="alert alert-danger" role="alert">
