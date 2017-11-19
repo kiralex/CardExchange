@@ -73,7 +73,7 @@ public class UserManagment {
 
         Entity entity = new Entity("UserInfo", userId);
         entity.setProperty("nextPointEarnDate", DateUtil.serializeDate(new Date()));
-        entity.setProperty("nbPoints", 100l);
+        entity.setProperty("nbPoints", 300l);
 
         datastore.put(entity);
         return entity;
@@ -97,6 +97,20 @@ public class UserManagment {
 
         entity.setProperty("nbPoints", (Long) entity.getProperty("nbPoints") + UserManagment.NB_POINTS_PER_PERIOD);
         entity.setProperty("nextPointEarnDate", DateUtil.serializeDate(newDate));
+
+        DatastoreService datastore = DatastoreGetter.getDatastore();
+        datastore.put(entity);
+    }
+
+    /**
+     * Method which increment user number of points
+     * @throws UserNotLoggedInException Error throwed when user is not connected
+     * @throws DatastoreGetter.DataStoreNotAvailableException Error throwed when {@link com.google.api.client.util.store.DataStore} is not available
+     */
+    public static void earnPointsWithSell(long nbPoints) throws UserNotLoggedInException, DatastoreGetter.DataStoreNotAvailableException{
+        Entity entity = UserManagment.getUserInfos();
+
+        entity.setProperty("nbPoints", (Long) entity.getProperty("nbPoints") + nbPoints);
 
         DatastoreService datastore = DatastoreGetter.getDatastore();
         datastore.put(entity);

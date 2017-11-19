@@ -1,7 +1,9 @@
 package com.derniamepoirier;
 
-import com.derniamepoirier.Utils.DatastoreGetter;
+import com.derniamepoirier.CardGeneration.Card;
+import com.derniamepoirier.User.CardAssignmentHelper;
 import com.derniamepoirier.User.UserManagment;
+import com.derniamepoirier.Utils.DatastoreGetter;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -10,29 +12,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
+import java.util.HashMap;
 
-@WebServlet(name = "MyPointsServlet", value="/myPoints")
-public class MyPointsServlet extends HttpServlet {
+@WebServlet(name = "MyCardsServlet", value = "/myCards")
+public class MyCardsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        long nbPoints = 0;
-        Date nextPointEarnDate = null;
-        boolean canEarnPoints = false;
-
         try {
-            nbPoints = UserManagment.getNbPoints();
-            nextPointEarnDate = UserManagment.getNextPointEarnDate();
-            canEarnPoints = UserManagment.canEarnPoints();
+            HashMap<Card, Long> cards = CardAssignmentHelper.getAllCards();
 
-            request.setAttribute("nbPoints", nbPoints);
-            request.setAttribute("nextPointEarnDate", nextPointEarnDate.getTime());
-            request.setAttribute("canEarnPoints", canEarnPoints);
-
-            if(UserManagment.getUserService().isUserAdmin()){
-                request.setAttribute("admin", true);
-            }
-
-            RequestDispatcher rd = request.getRequestDispatcher("myPoints.jsp");
+            request.setAttribute("cards", cards);
+            RequestDispatcher rd = request.getRequestDispatcher("myCards.jsp");
             rd.forward(request,response);
 
         } catch (UserManagment.UserNotLoggedInException e) {
@@ -44,7 +33,6 @@ public class MyPointsServlet extends HttpServlet {
             RequestDispatcher rd = request.getRequestDispatcher("error.jsp");
             rd.forward(request,response);
         }
-
 
     }
 }

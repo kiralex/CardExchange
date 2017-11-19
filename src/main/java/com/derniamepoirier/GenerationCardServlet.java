@@ -15,8 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 
-@WebServlet(name = "generationCardServlet", value = "/generateCard")
-public class generationCardServlet extends HttpServlet {
+@WebServlet(name = "GenerationCardServlet", value = "/generateCard")
+public class GenerationCardServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         String query = request.getParameter("query");
@@ -62,7 +62,7 @@ public class generationCardServlet extends HttpServlet {
 
         try {
             Card[] cards = CardGenerator.generate(query, optionsTab, nbCards);
-            request.setAttribute("nbCards", nbCards);
+            request.setAttribute("nbCards", cards.length);
             request.setAttribute("cards", cards);
         } catch (PixabayAPIExceptions.PixabayIncorrectParameterException | PixabayAPIExceptions.PixabayApiKeyMissingException | PixabayAPIExceptions.PixabayResponseCodeException e) {
             request.setAttribute("errorMessage", "Erreur lors de la récupération des images");

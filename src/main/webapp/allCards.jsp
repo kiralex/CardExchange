@@ -24,14 +24,21 @@
         <div class="row mb-3">
             <c:if test="${not empty cards}">
                 <c:forEach begin="0" end="${fn:length(cards)-1}" var="i">
-                    <div class="card col-md-3">
-                        <div class="card-header px-0 py-0 my-1 pb-1 text-center font-weight-bold">
+                    <div class="card col-md-4">
+                        <div class="card-header px-0 py-0 my-1 pb-1 text-center align-middle font-weight-bold" style="height: 3rem;">
                             {${fn:join(cards[i].getTags(), ", ")}}
                         </div>
-                        <div class="card-body row text-center">
-                            <div class="col-sm-12 my-auto mb-2 align-bottom">
-                                <img src="${cards[i].getPixabayImageURL()}" style="object-fit: contain;width: 100%; height: 100%;"
-                                />
+                        <div class="card-body row text-center px-2 py-2">
+                            <div class="col-sm-12 my-auto mb-2">
+                                <c:set var="imageURL" value="${cards[i].getCardImageURL().toString()}"></c:set>
+                                <c:choose>
+                                    <c:when test="${not empty imageURL}">
+                                        <img src="${imageURL}" style="object-fit: contain;width: 100%; height: 100%;" />
+                                    </c:when>
+                                    <c:otherwise>
+                                        <img src="${cards[i].getPixabayImageURL()}" style="object-fit: contain;width: 100%; height: 100%;" />
+                                    </c:otherwise>
+                                </c:choose>
                             </div>
                             <h5 class="card-subtitle text-muted col-sm-12 my-auto">#${cards[i].getId()}</h5>
                         </div>
