@@ -48,18 +48,19 @@
                     </script>
 
                 </h5>
-                <h5>
-                    <c:if test="${not empty admin}">
-                        Comme vous êtes administrateur, vous pouvez vous ajouter des points manuellement.
-                        <form class="form-inline" method="GET" action="earnPoints">
-                            <label for="nbPoints">Nombre de points :</label>
-                            <input type="number" class="form-control ml-2" min="0" id="nbPoints" name="nbPoints"/>
-                            <input type="submit" class="btn btn-primary ml-2"></input>
-                        </form>
-                    </c:if>
-                </h5>
             </c:otherwise>
         </c:choose>
+
+        <h5>
+            <c:if test="${not empty admin}">
+                Comme vous êtes administrateur, vous pouvez vous ajouter des points manuellement.
+                <form class="form-inline" method="GET" action="earnPoints">
+                    <label for="nbPoints">Nombre de points :</label>
+                    <input type="number" class="form-control ml-2" min="0" id="nbPoints" name="nbPoints"/>
+                    <input type="submit" class="btn btn-primary ml-2"></input>
+                </form>
+            </c:if>
+        </h5>
     </jsp:body>
 
 
