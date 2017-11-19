@@ -46,6 +46,3 @@ An easy way to keep your projects up to date is to use the maven [Versions plugi
     mvn versions:display-plugin-updates
     mvn versions:display-dependency-updates
     mvn versions:use-latest-versions
-
-Note - Be careful when changing `javax.servlet` as App Engine Standard uses 3.1 for Java 8, and 2.5
-for Java 7.
