@@ -36,7 +36,7 @@
                 <li class="list-group-item">tirer de nouvelles cartes chaque jour</li>
                 <li class="list-group-item">vendre à la boutique pour en tirer encore plus chaque jour</>
             </ul>
-            Bientôt vous pourrez même en échangez avec vos amis et avec le monde entier.
+            Bientôt vous pourrez même en échanger avec vos amis et avec le monde entier.
             Régulièrement de nouvelles cartes seront créées.
             </p>
         </div>
@@ -56,7 +56,7 @@
                 <a href="https://www.jetbrains.com/idea/">IntelliJ IDEA</a>,
                 <a href="https://maven.apache.org/">Maven</a>,
                 <a href="http://json.org/">JSON.org</a>,
-                <a href="https://github.com/Harium/dotenv">DotEnv/</a>
+                <a href="https://github.com/Harium/dotenv">DotEnv</a>
             </p>
         </div>
     </jsp:body>
