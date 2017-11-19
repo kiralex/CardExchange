@@ -38,11 +38,3 @@ It is needed to create cards
 ### Deploying (you need to have admin rights in the Google App Engine project to deploy)
 
     mvn appengine:update
-
-## Updating to latest Artifacts
-
-An easy way to keep your projects up to date is to use the maven [Versions plugin][versions-plugin].
-
-    mvn versions:display-plugin-updates
-    mvn versions:display-dependency-updates
-    mvn versions:use-latest-versions
