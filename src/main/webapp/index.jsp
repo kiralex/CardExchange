@@ -51,12 +51,12 @@
                     Card Exchange
                     </span>
                 </a>,
-                <a href="http://www.cyril-rabat.fr/enseignement/Info0927/">INFO0927</a>,
-                <a href="https://cloud.google.com/appengine/">Google App Engine</a>,
-                <a href="https://www.jetbrains.com/idea/">IntelliJ IDEA</a>,
-                <a href="https://maven.apache.org/">Maven</a>,
-                <a href="http://json.org/">JSON.org</a>,
-                <a href="https://github.com/Harium/dotenv">DotEnv</a>
+                <a href="http://www.cyril-rabat.fr/enseignement/Info0927/" target="_blank">INFO0927</a>,
+                <a href="https://cloud.google.com/appengine/" target="_blank">Google App Engine</a>,
+                <a href="https://www.jetbrains.com/idea/" target="_blank">IntelliJ IDEA</a>,
+                <a href="https://maven.apache.org/" target="_blank">Maven</a>,
+                <a href="http://json.org/" target="_blank">JSON.org</a>,
+                <a href="https://github.com/Harium/dotenv" target="_blank">DotEnv</a>
             </p>
         </div>
     </jsp:body>
