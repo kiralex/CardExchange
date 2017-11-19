@@ -6,12 +6,13 @@ This is a Google App Engine app. The goal of this app is to collect cards.
 # Installation
 ## Dependencies
 
+* git (obviously !)
 * openjdk-8-jre
 * maven
 * [Google Cloud SDK](https://cloud.google.com/sdk/) (*optional* : will be installed automatically by maven during execution)
 
 ```bash
-sudo apt-get install maven openjdk-8-jdk
+sudo apt-get install maven openjdk-8-jdk git
 ```
 
 ## Setup
