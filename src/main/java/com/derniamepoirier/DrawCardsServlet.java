@@ -60,7 +60,7 @@ public class DrawCardsServlet extends HttpServlet {
 
 
                 request.setAttribute("cards", cards);
-                request.setAttribute("nbPoints", nbPoints-nbCardsToDraw);
+                request.setAttribute("nbPoints", nbPoints-nbCardsToDraw*10);
             }
 
             RequestDispatcher rd = request.getRequestDispatcher("drawCards.jsp");
