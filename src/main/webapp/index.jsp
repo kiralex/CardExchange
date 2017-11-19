@@ -5,7 +5,7 @@
 
 <t:userpage>
     <jsp:attribute name="title">
-      Mes points
+      Acceuil
     </jsp:attribute>
     <jsp:body>
         <h1 class="mb-3">Bienvenue sur le nouveau jeu de collection et d'échange de cartes :

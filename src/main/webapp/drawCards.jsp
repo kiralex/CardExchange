@@ -12,7 +12,7 @@
 
 
     <jsp:body>
-        <h1 class="mb-2">Acheter des cartes</h1>
+        <h1 class="mb-2">Tirer des cartes</h1>
         <h5>Nombre de points disponibles : <strong>${nbPoints}</strong></h5>
         <h5>Vous pouvez acheter au maximum <strong>${nbCardsMax}</strong> cartes.</h5>
 
