@@ -22,7 +22,7 @@ git clone https://github.com/kiralex/CardExchange.git
 cd  CardExchange
 ```
 
-Then, put your api key of pixabay in a new file named **env** int the folder **configuration**
+Then, put your api key of pixabay in a new file named **env** into the folder **configuration**
 For example : 
 ```
 PIXABAY_API_KEY=012345678909876543210
