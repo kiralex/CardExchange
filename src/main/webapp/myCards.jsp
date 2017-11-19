@@ -7,7 +7,7 @@
 
 <t:userpage>
     <jsp:attribute name="title">
-      Toutes les cartes
+      Mes cartes
     </jsp:attribute>
 
 

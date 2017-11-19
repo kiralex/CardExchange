@@ -16,7 +16,7 @@ public class EarnPointsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
             String nbPointsS = request.getParameter("nbPoints");
-            if(UserManagment.getUserService().isUserAdmin() && nbPointsS != null && nbPointsS.matches("[0-9]*"))
+            if(UserManagment.getUserService().isUserAdmin() && nbPointsS != null && nbPointsS.matches("[0-9]+"))
                     UserManagment.earnPointsWithSell(Long.parseLong(nbPointsS));
             else
                 UserManagment.earnPoints();

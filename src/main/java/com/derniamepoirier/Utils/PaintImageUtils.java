@@ -129,6 +129,8 @@ public class PaintImageUtils {
                 newStr += 'e';
             } else if (c == 'è') {
                 newStr += 'e';
+            } else if (c == 'ë') {
+                newStr += 'e';
             } else if (c == 'ê') {
                 newStr += 'e';
             } else if (c == 'à') {

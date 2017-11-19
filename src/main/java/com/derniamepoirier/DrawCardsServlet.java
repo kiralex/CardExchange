@@ -23,7 +23,7 @@ public class DrawCardsServlet extends HttpServlet {
             request.setAttribute("nbPoints", nbPoints);
             request.setAttribute("nbCardsMax", nbCardsMax);
 
-            if(nbCardsMax > 0 && request.getParameter("nbCardsToDraw") != null && request.getParameter("nbCardsToDraw").matches("[0-9]*")){
+            if(nbCardsMax > 0 && request.getParameter("nbCardsToDraw") != null && request.getParameter("nbCardsToDraw").matches("[0-9]+")){
                 int nbCardsToDraw = Integer.valueOf(request.getParameter("nbCardsToDraw"));
 
                 if(nbCardsToDraw <= 0){
@@ -60,7 +60,8 @@ public class DrawCardsServlet extends HttpServlet {
 
 
                 request.setAttribute("cards", cards);
-                request.setAttribute("nbPoints", nbPoints-nbCardsToDraw);
+                request.setAttribute("nbPoints", nbPoints-nbCardsToDraw*10);
+                request.setAttribute("nbCardsMax", nbCardsMax-nbCardsToDraw);
             }
 
             RequestDispatcher rd = request.getRequestDispatcher("drawCards.jsp");
@@ -73,7 +74,7 @@ public class DrawCardsServlet extends HttpServlet {
             RequestDispatcher rd = request.getRequestDispatcher("error.jsp");
             rd.forward(request,response);
         } catch (UserManagment.UserNotLoggedInException e) {
-            request.setAttribute("errorMessage", "Vous devez être connecté pour acheter des cartes");
+            request.setAttribute("errorMessage", "Vous devez être connecté pour tirer des cartes.");
             RequestDispatcher rd = request.getRequestDispatcher("error.jsp");
             rd.forward(request,response);
         } 

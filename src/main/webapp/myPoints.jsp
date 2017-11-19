@@ -24,7 +24,7 @@
             Vous avez <span class="badge badge-success">${nbPoints}</span> points.
             <c:choose>
                 <c:when test="${nbPoints > 10}">
-                    Vous pouvez otenir des cartes <a href="/drawCards" class="btn btn-success btn-sm" >ici</a> si vous le souhaitez.
+                    Vous pouvez obtenir des cartes <a href="/drawCards" class="btn btn-success btn-sm" >ici</a> si vous le souhaitez.
                 </c:when>
                 <c:otherwise>
                     Vous n'en avez pas assez pour obtenir une carte. Un peu de patience.
