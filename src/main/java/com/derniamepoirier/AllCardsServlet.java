@@ -17,7 +17,7 @@ public class AllCardsServlet extends HttpServlet {
         Card cards[] = null;
         int nbCards = 0;
 
-        int nbPerPage = 16;
+        int nbPerPage = 12;
 
         int page = 1;
         if(request.getParameter("page") != null){
