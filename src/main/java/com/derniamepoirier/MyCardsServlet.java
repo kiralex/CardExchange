@@ -25,7 +25,7 @@ public class MyCardsServlet extends HttpServlet {
             rd.forward(request,response);
 
         } catch (UserManagment.UserNotLoggedInException e) {
-            request.setAttribute("errorMessage", "Vous devez être connecté pour connaître votre nombre de points");
+            request.setAttribute("errorMessage", "Vous devez être connecté pour afficher vos cartes.");
             RequestDispatcher rd = request.getRequestDispatcher("error.jsp");
             rd.forward(request,response);
         } catch (DatastoreGetter.DataStoreNotAvailableException e) {

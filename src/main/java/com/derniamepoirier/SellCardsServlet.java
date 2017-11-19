@@ -24,7 +24,7 @@ public class SellCardsServlet extends HttpServlet {
             long totalEarnedPoints = 0;
             while (paramNames.hasMoreElements()) {
                 String param = paramNames.nextElement();
-                if(param.matches("card-[0-9]*") && request.getParameter(param).matches("[0-9]*")){
+                if(param.matches("card-[0-9]+") && request.getParameter(param).matches("[0-9]+")){
                     long cardId = Long.parseLong(param.substring(5, param.length()));
                     long quantity = Long.parseLong(request.getParameter(param));
                     if(quantity > 0) {
@@ -42,7 +42,7 @@ public class SellCardsServlet extends HttpServlet {
             RequestDispatcher rd = request.getRequestDispatcher("sellCards.jsp");
             rd.forward(request,response);
         } catch (UserManagment.UserNotLoggedInException e) {
-            request.setAttribute("errorMessage", "Vous devez être connecté pour connaître votre nombre de points");
+            request.setAttribute("errorMessage", "Vous devez être connecté pour vendre des cartes.");
             RequestDispatcher rd = request.getRequestDispatcher("error.jsp");
             rd.forward(request,response);
         } catch (DatastoreGetter.DataStoreNotAvailableException e) {
